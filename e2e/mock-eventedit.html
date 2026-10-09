@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mock Google event form</title>
+<style>
+  body { margin: 0; font-family: Roboto, Arial, sans-serif; color: #3c4043; }
+  header { height: 64px; border-bottom: 1px solid #dadce0; display: flex; align-items: center; padding: 0 16px; font-size: 18px; }
+  dl { padding: 24px; display: grid; grid-template-columns: 120px 1fr; gap: 8px 16px; max-width: 800px; }
+  dt { color: #5f6368; font-size: 13px; }
+  dd { margin: 0; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<header>Mock Google Calendar "new event" form (e2e): fields received in the URL</header>
+<dl id="fields"></dl>
+<script>
+  const dl = document.getElementById('fields');
+  for (const [k, v] of new URLSearchParams(location.search)) {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v; dd.dataset.param = k;
+    dl.append(dt, dd);
+  }
+</script>
+</body>
+</html>

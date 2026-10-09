@@ -1,0 +1,15 @@
+{
+  "name": "better-google-calendar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome extension: drop .ics files onto Google Calendar to add their events.",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "icons": "node scripts/make-icons.js",
+    "e2e": "node e2e/run.js",
+    "zip": "mkdir -p dist && rm -f dist/better-google-calendar.zip && zip -r dist/better-google-calendar.zip manifest.json icons src"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.47.0"
+  }
+}

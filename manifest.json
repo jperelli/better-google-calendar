@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Better Google Calendar",
+  "version": "0.1.0",
+  "description": "Drop .ics files onto Google Calendar to add their events, and more improvements to come.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Better Google Calendar: drop a .ics file onto calendar.google.com",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://calendar.google.com/*"],
+      "js": ["src/ics.js", "src/gcal-url.js", "src/content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

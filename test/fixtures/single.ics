@@ -1,0 +1,19 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Example Corp//NONSGML Event//EN
+BEGIN:VEVENT
+UID:single-123@example.com
+DTSTAMP:20260101T120000Z
+DTSTART;TZID=Europe/Madrid:20260315T100000
+DTEND;TZID=Europe/Madrid:20260315T113000
+SUMMARY:Team sync\, Q1 review
+DESCRIPTION:Agenda:\n- numbers\n- hiring\; budget\nSee you there\, long line that
+  is folded onto a second line.
+LOCATION:Carrer de Pelai 1\, Barcelona
+URL:https://example.com/meet/123
+ATTENDEE;CN=Ana García;ROLE=REQ-PARTICIPANT:mailto:ana@example.com
+ATTENDEE;CN="Bob, Jr.";RSVP=TRUE:mailto:bob@example.com
+ORGANIZER;CN=Julian:mailto:julian@example.com
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
