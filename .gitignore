@@ -2,3 +2,4 @@ node_modules/
 dist/
 e2e/.profile/
 e2e/out/
+store/.profile/

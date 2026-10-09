@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Calendar</title>
+<style>
+  :root { --line: #dadce0; --muted: #70757a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Roboto, Arial, sans-serif; color: #3c4043; background: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  header { height: 64px; display: flex; align-items: center; padding: 0 16px; gap: 20px; border-bottom: 1px solid var(--line); flex: none; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; color: #5f6368; width: 220px; }
+  .logo .mark { width: 36px; height: 36px; border-radius: 8px; background: #1a73e8; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; }
+  .today { border: 1px solid var(--line); border-radius: 4px; padding: 0 14px; height: 36px; display: flex; align-items: center; font-size: 14px; }
+  .nav { color: #5f6368; font-size: 18px; letter-spacing: 12px; }
+  .month { font-size: 22px; }
+  .spacer { flex: 1; }
+  .view { border: 1px solid var(--line); border-radius: 4px; padding: 0 12px; height: 36px; display: flex; align-items: center; font-size: 14px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: #e8710a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+  .body { display: flex; flex: 1; min-height: 0; }
+  aside { width: 256px; padding: 12px 16px; border-right: 1px solid var(--line); flex: none; font-size: 13px; }
+  .create { display: inline-flex; align-items: center; gap: 12px; height: 48px; padding: 0 20px 0 14px; border-radius: 24px; box-shadow: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15); font-size: 14px; font-weight: 500; margin: 4px 0 20px; }
+  .create .plus { font-size: 28px; color: #4285f4; font-weight: 300; }
+  .mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px 0; text-align: center; font-size: 10px; color: var(--muted); margin: 8px 0 20px; }
+  .mini b { color: #3c4043; font-weight: 400; }
+  .mini .t { background: #1a73e8; color: #fff; border-radius: 50%; }
+  .mini span { padding: 4px 0; }
+  .cal-list div { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .cal-list i { width: 18px; height: 18px; border-radius: 4px; display: inline-block; }
+  .cal-list h4 { margin: 10px 0 2px; font-size: 14px; font-weight: 500; }
+  .grid { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .days { display: grid; grid-template-columns: 56px repeat(7, 1fr); border-bottom: 1px solid var(--line); flex: none; }
+  .days div { text-align: center; padding: 8px 0 6px; font-size: 11px; color: var(--muted); letter-spacing: .8px; }
+  .days div b { display: block; font-size: 26px; font-weight: 400; color: #3c4043; margin-top: 2px; width: 46px; height: 46px; line-height: 46px; margin-left: auto; margin-right: auto; border-radius: 50%; }
+  .days div.today b { background: #1a73e8; color: #fff; }
+  .hours { position: relative; flex: 1; display: grid; grid-template-columns: 56px repeat(7, 1fr); overflow: hidden; }
+  .hours .col { border-left: 1px solid var(--line); position: relative; background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 48px; }
+  .hours .labels { font-size: 10px; color: var(--muted); text-align: right; padding-right: 8px; }
+  .hours .labels div { height: 48px; transform: translateY(-6px); }
+  .ev { position: absolute; left: 4px; right: 8px; border-radius: 4px; padding: 4px 8px; font-size: 12px; color: #fff; line-height: 16px; overflow: hidden; }
+  .ev small { display: block; opacity: .9; font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="mark">20</span>Calendar</div>
+  <div class="today">Today</div>
+  <div class="nav">‹ ›</div>
+  <div class="month">April 2026</div>
+  <div class="spacer"></div>
+  <div class="view">Week ▾</div>
+  <div class="avatar">J</div>
+</header>
+<div class="body">
+  <aside>
+    <div class="create"><span class="plus">+</span> Create</div>
+    <div style="font-size:14px;margin-bottom:4px">April 2026</div>
+    <div class="mini">
+      <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+      <span>30</span><span>31</span><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b>
+      <b>6</b><b>7</b><b>8</b><b>9</b><b>10</b><b>11</b><b>12</b>
+      <b>13</b><b>14</b><b>15</b><b>16</b><b>17</b><b>18</b><b>19</b>
+      <b>20</b><b class="t">21</b><b>22</b><b>23</b><b>24</b><b>25</b><b>26</b>
+      <b>27</b><b>28</b><b>29</b><b>30</b><span>1</span><span>2</span><span>3</span>
+    </div>
+    <div class="cal-list">
+      <h4>My calendars</h4>
+      <div><i style="background:#039be5"></i>Julian</div>
+      <div><i style="background:#33b679"></i>Family</div>
+      <div><i style="background:#7986cb"></i>Birthdays</div>
+      <h4>Other calendars</h4>
+      <div><i style="background:#f6bf26"></i>Holidays in Spain</div>
+    </div>
+  </aside>
+  <div class="grid">
+    <div class="days">
+      <div></div>
+      <div>MON<b>20</b></div><div>TUE<b>21</b></div><div>WED<b>22</b></div><div>THU<b>23</b></div><div>FRI<b>24</b></div><div>SAT<b>25</b></div><div>SUN<b>26</b></div>
+    </div>
+    <div class="hours">
+      <div class="labels"><div></div><div>8 AM</div><div>9 AM</div><div>10 AM</div><div>11 AM</div><div>12 PM</div><div>1 PM</div><div>2 PM</div><div>3 PM</div><div>4 PM</div><div>5 PM</div><div>6 PM</div><div>7 PM</div></div>
+      <div class="col"><div class="ev" style="top:96px;height:44px;background:#039be5">Standup<small>10 – 10:45 AM</small></div></div>
+      <div class="col"><div class="ev" style="top:144px;height:92px;background:#7986cb">Design review<small>11 AM – 1 PM</small></div><div class="ev" style="top:336px;height:44px;background:#039be5">1:1 with Ana<small>3 – 3:45 PM</small></div></div>
+      <div class="col"><div class="ev" style="top:48px;height:44px;background:#33b679">Gym<small>8 – 8:45 AM</small></div></div>
+      <div class="col"><div class="ev" style="top:240px;height:44px;background:#039be5">Lunch with Marc<small>1 – 1:45 PM</small></div></div>
+      <div class="col"><div class="ev" style="top:96px;height:140px;background:#8e24aa">Workshop<small>10 AM – 1 PM</small></div></div>
+      <div class="col"></div>
+      <div class="col"><div class="ev" style="top:288px;height:92px;background:#33b679">Family lunch<small>2 – 4 PM</small></div></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

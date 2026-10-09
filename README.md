@@ -56,3 +56,10 @@ Layout:
 ## Roadmap
 
 More Google Calendar improvements will land here; the `.ics` drop is the first one.
+
+## Publishing to the Chrome Web Store
+
+Everything needed for the listing is in `store/`: `listing.md` (texts, permission justifications,
+data disclosures), `screenshots/` (1280x800 screenshots and the 440x280 promo tile, regenerated with
+`node store/screenshots.js`) and the privacy policy in `PRIVACY.md`. Build the package with
+`npm run zip` and upload `dist/better-google-calendar.zip` in the developer console.
