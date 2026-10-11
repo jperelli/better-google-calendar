@@ -47,6 +47,8 @@
         keywords: ['button', 'fab', 'hide', 'show', 'quick add', 'botón'],
         run: () => settings.set('quickadd', { showFab: qaPrefs.showFab === false }).then(() => toast('Quick add button toggled.')),
       },
+      ...declutterCommands(),
+      ...gridCommands(),
       {
         id: 'ext:research',
         group: 'Extension',
@@ -56,6 +58,42 @@
         newTab: true,
       },
     ];
+  }
+
+  function declutterCommands() {
+    const d = BGC.features && BGC.features.declutter;
+    if (!d) return [];
+    return Object.entries(d.TOGGLES).map(([id, t]) => ({
+      id: `ext:declutter:${id}`,
+      group: 'Extension',
+      label: `${d.isOn(id) ? 'Turn off' : 'Turn on'}: ${t.label}`,
+      keywords: ['declutter', 'print', 'density', 'hide', 'toggle', 'theme', 'compact', id],
+      run: () => d.toggle(id).then(() => toast(`${t.label}: ${d.isOn(id) ? 'on' : 'off'}`)),
+    }));
+  }
+
+  function gridCommands() {
+    const out = [];
+    const gt = BGC.features && BGC.features.gridTheme;
+    const ge = BGC.features && BGC.features.gridEvents;
+    if (gt) {
+      const p = gt.get();
+      out.push({ id: 'ext:grid:theme', group: 'Extension', label: `${p.enabled ? 'Turn off' : 'Turn on'}: weekend/holiday/today colours and working-hours shading`, keywords: ['weekend', 'shade', 'working hours', 'colour', 'color', 'holiday', 'today'], run: () => gt.set({ enabled: !p.enabled }) });
+      out.push({ id: 'ext:grid:focus', group: 'Extension', label: `${p.focusHours ? 'Turn off' : 'Turn on'}: start the day at ${p.workStart}:00 (skip night hours)`, keywords: ['night hours', 'morning', 'scroll', 'focus', 'hide hours', 'start hour'], run: () => gt.set({ focusHours: !p.focusHours }) });
+      out.push({ id: 'ext:grid:hours', group: 'Extension', label: `Set working hours (now ${p.workStart}:00–${p.workEnd}:00)`, keywords: ['working hours', 'work hours', 'horario', 'shade'], run: () => {
+        const v = prompt('Working hours as start-end, 24h (e.g. 9-18):', `${p.workStart}-${p.workEnd}`);
+        const m = v && v.match(/^\s*(\d{1,2})\s*[-–]\s*(\d{1,2})\s*$/);
+        if (m) gt.set({ workStart: +m[1], workEnd: +m[2] });
+      } });
+    }
+    if (ge) {
+      const p = ge.get();
+      out.push({ id: 'ext:grid:dim', group: 'Extension', label: `${p.dimPast ? 'Turn off' : 'Turn on'}: dim past events`, keywords: ['dim', 'past', 'fade', 'grey'], run: () => ge.set({ dimPast: !p.dimPast }) });
+      out.push({ id: 'ext:grid:declined', group: 'Extension', label: `${p.dimDeclined ? 'Turn off' : 'Turn on'}: fade declined events`, keywords: ['declined', 'fade', 'dim'], run: () => ge.set({ dimDeclined: !p.dimDeclined }) });
+      out.push({ id: 'ext:grid:totals', group: 'Extension', label: `${p.showTotals ? 'Hide' : 'Show'}: hours total per colour`, keywords: ['totals', 'hours', 'time tracking', 'insights', 'sum'], run: () => ge.set({ showTotals: !p.showTotals }) });
+      out.push({ id: 'ext:grid:now', group: 'Extension', label: `${p.showNowBar ? 'Hide' : 'Show'}: Now bar (countdown, time left, Join)`, keywords: ['now', 'countdown', 'next event', 'join', 'bar'], run: () => ge.set({ showNowBar: !p.showNowBar }) });
+    }
+    return out;
   }
 
   // "go to 14 nov" / "next friday" / "14/11" -> navigation command in the current view
