@@ -8,6 +8,16 @@
   const BGC = window.BGC;
   if (!BGC || !BGC.ui || !BGC.grid) return;
   const { dateFromDatekey, parseHourLabel, parseChipTime } = BGC.grid;
+
+  // textContent glues adjacent spans together ("Busy 1" + "9:30am" -> "Busy 19:30am");
+  // join text nodes with spaces so the time range stays intact.
+  function spacedText(node) {
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    const parts = [];
+    while (walker.nextNode()) parts.push(walker.currentNode.nodeValue);
+    return parts.join(' ');
+  }
+
   const { el, addStyle, mount, shadow } = BGC.ui;
 
   const listeners = [];
@@ -73,8 +83,7 @@
     for (const node of main.querySelectorAll('[data-eventid]')) {
       const rect = node.getBoundingClientRect();
       if (rect.width < 4 || rect.height < 4) continue;
-      const text = node.textContent || '';
-      const time = parseChipTime(text);
+      const time = parseChipTime(spacedText(node));
       const titleEl = node.querySelector('[aria-hidden="true"]') || node;
       const title = (titleEl.textContent || '').trim();
       const style = getComputedStyle(node);

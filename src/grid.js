@@ -37,7 +37,7 @@
   // "10:00 – 11:00", "10:30am – 11am", "10:00 a 11:00", "9 – 10pm".
   // Returns { startMin, endMin, rest } (minutes from midnight) or null.
   const T = '(\\d{1,2})(?::(\\d{2}))?\\s?(am|pm|a\\.m\\.|p\\.m\\.)?';
-  const RANGE_RE = new RegExp(`${T}\\s*(?:to|–|—|-|a|hasta|bis|à)\\s*${T}`, 'i');
+  const RANGE_RE = new RegExp(`(?:^|[^\\d])${T}\\s*(?:to|–|—|-|a|hasta|bis|à)\\s*${T}`, 'i');
   function parseChipTime(text) {
     const s = String(text || '').replace(/\u202f|\u00a0/g, ' ');
     const m = RANGE_RE.exec(s);

@@ -56,3 +56,9 @@ test('freeSlots and formatSlots', () => {
   assert.equal(text, 'Wed, Mar 25: 09:00–11:00, 14:00–16:00, 17:00–18:00\n(Europe/Madrid)');
   assert.equal(g.formatSlots(free, { locale: 'en-US', timeZone: 'UTC', h12: true }).split('\n')[0], 'Wed, Mar 25: 9am–11am, 2pm–4pm, 5pm–6pm');
 });
+
+test('parseChipTime: a title ending in a digit does not leak into the hour', () => {
+  const t = parseChipTime('Early standup 1 11am to 2pm, Work');
+  assert.deepEqual([t.startMin, t.endMin], [11 * 60, 14 * 60]);
+  assert.equal(parseChipTime('Early standup 111am to 2pm'), null);
+});
