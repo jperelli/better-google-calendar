@@ -83,7 +83,57 @@
     return h ? `${h}h${m ? ` ${String(m).padStart(2, '0')}` : ''}` : `${m} min`;
   }
 
-  const api = { dateFromDatekey, datekeyFromDate, parseHourLabel, parseChipTime, dayKind, totals, fmtMinutes };
+  // Free gaps per day inside [startMin, endMin), skipping busy ranges and gaps
+  // shorter than minMinutes. busy: [{ date: Date, startMin, endMin }].
+  function freeSlots(days, busy, opts) {
+    opts = opts || {};
+    const startMin = opts.startMin != null ? opts.startMin : 9 * 60;
+    const endMin = opts.endMin != null ? opts.endMin : 18 * 60;
+    const minMinutes = opts.minMinutes || 30;
+    const out = [];
+    for (const day of days) {
+      const key = day.toDateString();
+      const ranges = busy
+        .filter((b) => b.date && b.date.toDateString() === key)
+        .map((b) => [b.startMin, b.endMin])
+        .sort((a, b) => a[0] - b[0]);
+      let cursor = startMin;
+      const slots = [];
+      for (const [a, b] of ranges) {
+        if (a - cursor >= minMinutes) slots.push([cursor, Math.min(a, endMin)]);
+        cursor = Math.max(cursor, b);
+        if (cursor >= endMin) break;
+      }
+      if (endMin - cursor >= minMinutes) slots.push([cursor, endMin]);
+      out.push({ date: day, slots: slots.filter(([a, b]) => b - a >= minMinutes) });
+    }
+    return out;
+  }
+
+  function fmtClock(min, h12) {
+    const h = Math.floor(min / 60) % 24;
+    const m = min % 60;
+    if (!h12) return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    const ap = h >= 12 ? 'pm' : 'am';
+    const hh = h % 12 || 12;
+    return m ? `${hh}:${String(m).padStart(2, '0')}${ap}` : `${hh}${ap}`;
+  }
+
+  // "Tue 25 Mar: 9:00–11:00, 14:00–16:00 (CET)" lines
+  function formatSlots(days, opts) {
+    opts = opts || {};
+    const fmtD = new Intl.DateTimeFormat(opts.locale, { weekday: 'short', day: 'numeric', month: 'short' });
+    const tz = opts.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const lines = [];
+    for (const d of days) {
+      if (!d.slots.length) continue;
+      lines.push(`${fmtD.format(d.date)}: ${d.slots.map(([a, b]) => `${fmtClock(a, opts.h12)}–${fmtClock(b, opts.h12)}`).join(', ')}`);
+    }
+    if (!lines.length) return '';
+    return `${lines.join('\n')}\n(${tz})`;
+  }
+
+  const api = { freeSlots, fmtClock, formatSlots, dateFromDatekey, datekeyFromDate, parseHourLabel, parseChipTime, dayKind, totals, fmtMinutes };
   root.BGC = root.BGC || {};
   root.BGC.grid = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

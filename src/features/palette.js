@@ -47,6 +47,13 @@
         keywords: ['button', 'fab', 'hide', 'show', 'quick add', 'botón'],
         run: () => settings.set('quickadd', { showFab: qaPrefs.showFab === false }).then(() => toast('Quick add button toggled.')),
       },
+      {
+        id: 'ext:availability',
+        group: 'Extension',
+        label: 'Share my free times as text (from the visible week)',
+        keywords: ['availability', 'free', 'slots', 'share', 'disponibilidad', 'huecos', 'schedule', 'meeting times'],
+        run: () => BGC.features && BGC.features.availability && BGC.features.availability.open(),
+      },
       ...(BGC.features && BGC.features.export ? BGC.features.export.commands() : []),
       ...declutterCommands(),
       ...gridCommands(),

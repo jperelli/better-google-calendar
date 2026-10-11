@@ -40,3 +40,19 @@ test('dayKind and totals', () => {
   assert.equal(g.fmtMinutes(125), '2h 05');
   assert.equal(g.fmtMinutes(45), '45 min');
 });
+
+test('freeSlots and formatSlots', () => {
+  const mon = new Date(2026, 2, 24);
+  const tue = new Date(2026, 2, 25);
+  const busy = [
+    { date: tue, startMin: 11 * 60, endMin: 14 * 60 },
+    { date: tue, startMin: 16 * 60, endMin: 17 * 60 },
+    { date: mon, startMin: 8 * 60, endMin: 18 * 60 },
+  ];
+  const free = g.freeSlots([mon, tue], busy, { startMin: 9 * 60, endMin: 18 * 60, minMinutes: 30 });
+  assert.deepEqual(free[0].slots, []);
+  assert.deepEqual(free[1].slots, [[540, 660], [840, 960], [1020, 1080]]);
+  const text = g.formatSlots(free, { locale: 'en-US', timeZone: 'Europe/Madrid' });
+  assert.equal(text, 'Wed, Mar 25: 09:00–11:00, 14:00–16:00, 17:00–18:00\n(Europe/Madrid)');
+  assert.equal(g.formatSlots(free, { locale: 'en-US', timeZone: 'UTC', h12: true }).split('\n')[0], 'Wed, Mar 25: 9am–11am, 2pm–4pm, 5pm–6pm');
+});

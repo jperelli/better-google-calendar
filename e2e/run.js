@@ -253,6 +253,18 @@ async function main() {
   await page.keyboard.press('Escape');
   console.log('export commands count visible events');
 
+  // 15. Share free times dialog lists gaps of the visible week.
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('free times');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Share my free times")'));
+  await page.keyboard.press('Enter');
+  const ta = await page.waitForSelector(shadow('.bgc-dialog textarea'));
+  const avail = await ta.inputValue();
+  assert.ok(/\d{1,2}(:\d{2})?(am|pm)?–\d{1,2}/.test(avail) || /No free gaps/.test(avail), 'availability text rendered: ' + avail);
+  await page.screenshot({ path: path.join(OUT, '9-availability.png') });
+  await page.keyboard.press('Escape');
+  console.log('share free times dialog');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }
