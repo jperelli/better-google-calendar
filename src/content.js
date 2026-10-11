@@ -333,7 +333,10 @@
     });
   }
 
-  function showEventList(items, fileNames) {
+  // Generic modal used by every feature: backdrop + card + header with a
+  // close button. Only one dialog is open at a time.
+  function openDialog(opts) {
+    opts = opts || {};
     mount();
     closeDialog();
     dialogBackdrop = el('div', 'bgc-backdrop');
@@ -342,15 +345,15 @@
     });
 
     const dialog = el('div', 'bgc-dialog');
+    if (opts.width) dialog.style.width = opts.width;
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
     dialog.tabIndex = -1;
 
     const header = el('div', 'bgc-header');
     const titleWrap = el('div', 'bgc-title');
-    titleWrap.appendChild(el('div', null, `${items.length} events found`));
-    const fileLabel = fileNames.length === 1 ? fileNames[0] : `${fileNames.length} files`;
-    titleWrap.appendChild(el('div', 'bgc-subtitle', `${fileLabel} · choose which ones to add to Google Calendar`));
+    titleWrap.appendChild(el('div', null, opts.title || ''));
+    if (opts.subtitle) titleWrap.appendChild(el('div', 'bgc-subtitle', opts.subtitle));
     header.appendChild(titleWrap);
     const closeBtn = el('button', 'bgc-icon-btn');
     closeBtn.type = 'button';
@@ -360,6 +363,19 @@
     closeBtn.addEventListener('click', closeDialog);
     header.appendChild(closeBtn);
     dialog.appendChild(header);
+
+    dialogBackdrop.appendChild(dialog);
+    shadow.appendChild(dialogBackdrop);
+    document.addEventListener('keydown', onKeydown, true);
+    return { dialog, header, titleWrap, close: closeDialog };
+  }
+
+  function showEventList(items, fileNames) {
+    const fileLabel = fileNames.length === 1 ? fileNames[0] : `${fileNames.length} files`;
+    const { dialog } = openDialog({
+      title: `${items.length} events found`,
+      subtitle: `${fileLabel} · choose which ones to add to Google Calendar`,
+    });
 
     const list = el('ul', 'bgc-list');
     const rows = [];
@@ -421,10 +437,35 @@
     done.addEventListener('click', closeDialog);
     footer.appendChild(done);
     dialog.appendChild(footer);
-
-    dialogBackdrop.appendChild(dialog);
-    shadow.appendChild(dialogBackdrop);
-    document.addEventListener('keydown', onKeydown, true);
     dialog.focus();
   }
+
+  // ---- shared with the feature scripts loaded after this one ---------------
+
+  function addStyle(css) {
+    const node = document.createElement('style');
+    node.textContent = css;
+    shadow.appendChild(node);
+    return node;
+  }
+
+  function isEditable(target) {
+    if (!target || target === document.body) return false;
+    const tag = (target.tagName || '').toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
+  }
+
+  BGC.ui = {
+    host,
+    shadow,
+    mount,
+    el,
+    toast,
+    openUrls,
+    openDialog,
+    closeDialog,
+    addStyle,
+    isEditable,
+    icons: { calendarPlus: ICON_CALENDAR_PLUS, close: ICON_CLOSE },
+  };
 })();

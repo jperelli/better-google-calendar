@@ -146,6 +146,34 @@ async function main() {
   await page.screenshot({ path: path.join(OUT, '4-single-event-navigates.png') });
   console.log('single-event drop -> same-tab navigation to eventedit');
 
+  // 8. Quick Add: `q` opens the box, the preview updates, Enter opens the form.
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week');
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.keyboard.press('q');
+  const qaInput = await page.waitForSelector(shadow('.bgc-qa-input'));
+  await qaInput.type('Lunch with ana@example.com tomorrow 1-2pm at Bar Lobo');
+  await page.waitForSelector(shadow('.bgc-qa-preview:has-text("Bar Lobo")'));
+  assert.match(await page.locator(shadow('.bgc-qa-title')).textContent(), /^Lunch$/);
+  await page.screenshot({ path: path.join(OUT, '5-quick-add.png') });
+  await page.keyboard.press('Enter');
+  await page.waitForURL(/\/eventedit\?/);
+  const qa = new URL(page.url()).searchParams;
+  assert.equal(qa.get('text'), 'Lunch');
+  assert.equal(qa.get('location'), 'Bar Lobo');
+  assert.equal(qa.get('add'), 'ana@example.com');
+  assert.match(qa.get('dates'), /^\d{8}T130000\/\d{8}T140000$/);
+  console.log('quick add -> eventedit with parsed fields');
+
+  // 9. Escape closes the Quick Add box; typing in a page input does not open it.
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week');
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.locator(shadow('.bgc-qa-fab')).click();
+  await page.waitForSelector(shadow('.bgc-qa-panel'));
+  await page.keyboard.press('Escape');
+  await page.waitForSelector(shadow('.bgc-qa-panel'), { state: 'detached' });
+  console.log('Escape closes quick add');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }

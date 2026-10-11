@@ -1,7 +1,10 @@
 # Better Google Calendar
 
-Chrome extension that improves Google Calendar. First feature: **drop an `.ics` file onto
-calendar.google.com to add its events**.
+Chrome extension that improves Google Calendar without asking for access to your Google account:
+everything is done in the page or through Google's own URLs. Features (see
+[docs/market-research.md](docs/market-research.md) for why these):
+
+## Drop an `.ics` file onto calendar.google.com to add its events
 
 - One event in the file: Google's own "new event" form opens, with title, dates, description,
   location, guests and recurrence already filled. Review and press **Save**.
@@ -10,6 +13,23 @@ calendar.google.com to add its events**.
 
 The pre-filled form is Google's own `calendar/r/eventedit?text=…&dates=…` page (the same endpoint
 "Add to Google Calendar" links use), so nothing depends on Google Calendar's internal DOM.
+
+## Quick Add in plain words
+
+Press **q** (or **Alt+Shift+Q**, or the blue **Quick add** button bottom-right) and type something like
+`Lunch with ana@example.com tomorrow 1-2pm at Bar Lobo every friday`. A live preview shows what was
+understood; **Enter** opens Google's pre-filled form (Shift+Enter in a new tab). English and Spanish:
+
+- dates: `today`, `tomorrow`, `next friday`, `14 nov`, `nov 14 2027`, `14/11`, `2026-11-14`, `in 3 days`,
+  `mañana`, `el viernes`, `14 de noviembre`
+- times: `at 5` (= 17:00), `9am`, `17:30`, `17h`, `1-2pm`, `de 17 a 18:30`, `tonight`, `por la tarde`,
+  `for 45 min`, `(90 min)`; no time = all-day event
+- place: `at Bar Lobo`, `en Bar Lobo`, `in Barcelona`; guests: any e-mail address
+- repeat: `every weekday`, `every monday and wednesday`, `every 2 weeks`, `every last friday`,
+  `every last day of the month`, `daily`, `cada mes`, `todos los lunes`; plus a **Repeat** menu with the
+  rules Google's dialog cannot express (last day of month, last weekday, nth weekday, quarterly).
+
+Select text on any web page, right-click, **Add "…" to Google Calendar**: the same parser fills the form.
 
 ## Install (unpacked)
 

@@ -23,8 +23,13 @@ None. The extension has no server, no analytics and no tracking.
 ## Permissions
 
 - **Host access to `https://calendar.google.com/*`**: required to detect files dropped on Google
-  Calendar and show the event list there. The extension does not read your calendar data.
-- No other permissions are requested.
+  Calendar, show the event list and the Quick Add box there. The extension does not read your
+  calendar data from Google's servers and never asks for access to your Google account.
+- **`storage`**: keeps your preferences (for example the default event length) in Chrome's extension
+  storage, synced with your Chrome profile. No event data is stored.
+- **`contextMenus`**: adds the "Add … to Google Calendar" entry to the right-click menu for selected
+  text. The selected text is parsed locally and placed in the Google Calendar URL; the extension does
+  not read the page it was selected from.
 
 ## Changes
 
