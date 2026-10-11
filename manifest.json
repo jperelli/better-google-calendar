@@ -29,6 +29,7 @@
         "src/ics.js",
         "src/gcal-url.js",
         "src/quickadd.js",
+        "src/templates.js",
         "src/settings.js",
         "src/content.js",
         "src/features/quick-add.js"

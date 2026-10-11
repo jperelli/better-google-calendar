@@ -451,6 +451,7 @@
       meta: {
         hasDate: hasDate || !!relative || !!explicit,
         hasTime: !!times && !allDay,
+        hasEndTime: !!(times && times.end) && !allDay,
         allDay: isDate,
         durationMinutes: durationMinutes || null,
       },

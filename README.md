@@ -31,6 +31,15 @@ understood; **Enter** opens Google's pre-filled form (Shift+Enter in a new tab).
 
 Select text on any web page, right-click, **Add "…" to Google Calendar**: the same parser fills the form.
 
+## Event templates
+
+In the Quick Add box, type an event once (`Shift 2 at 14:00 for 8 hours at Plant B`) and press
+**+ Save as template**. From then on click the **Shift 2** chip, type just the day (`next friday`,
+`14 nov`, or nothing for today) and press Enter: title, start time, length, place, guests and repeat
+rule come from the template; anything you type on top (a different time, place or extra words) wins.
+Templates are kept in Chrome's extension storage and sync with your Chrome profile. Hover a chip and
+click **×** to delete it.
+
 ## Install (unpacked)
 
 1. Clone this repo.

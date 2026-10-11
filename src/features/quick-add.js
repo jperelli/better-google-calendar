@@ -8,7 +8,20 @@
   const { el, addStyle, toast, openUrls, isEditable, mount, shadow } = BGC.ui;
   const { parseQuickAdd, RECURRENCE_PRESETS } = BGC.quickadd;
   const { buildEventEditUrl, eventEditBase } = BGC.gcal;
+  const { templateFromResult, applyTemplate } = BGC.templates;
   const settings = BGC.settings;
+  let templates = [];
+  settings.get('templates', { items: [] }).then((t) => {
+    templates = t.items || [];
+  });
+  settings.onChange('templates', (t) => {
+    templates = (t && t.items) || [];
+    if (panel && panel.__renderTemplates) panel.__renderTemplates();
+  });
+  function saveTemplates(items) {
+    templates = items;
+    return settings.set('templates', { items });
+  }
 
   addStyle(`
     .bgc-qa-fab {
@@ -43,6 +56,19 @@
     .bgc-qa-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
     .bgc-qa-hint { font-size: 12px; color: #70757a; margin-top: 10px; line-height: 16px; }
     .bgc-qa-hint code { background: #f1f3f4; padding: 0 4px; border-radius: 3px; }
+    .bgc-qa-tpls { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+    .bgc-qa-tpls label { color: #5f6368; font-size: 12px; margin-right: 2px; }
+    .bgc-qa-tpl {
+      display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border-radius: 14px;
+      border: 1px solid #dadce0; background: #fff; color: #3c4043; font: 13px Roboto, Arial, sans-serif; cursor: pointer;
+    }
+    .bgc-qa-tpl:hover { background: #f8f9fa; }
+    .bgc-qa-tpl.bgc-on { background: #e8f0fe; border-color: #d2e3fc; color: #1967d2; }
+    .bgc-qa-tpl .bgc-qa-x { display: none; width: 16px; height: 16px; border-radius: 50%; line-height: 16px; text-align: center; font-size: 12px; color: #5f6368; }
+    .bgc-qa-tpl:hover .bgc-qa-x { display: inline-block; }
+    .bgc-qa-tpl .bgc-qa-x:hover { background: #dadce0; color: #202124; }
+    .bgc-qa-tpl.bgc-qa-save { border-style: dashed; color: #1a73e8; }
+    .bgc-qa-name { font: 13px Roboto, Arial, sans-serif; padding: 4px 8px; border: 1px solid #1a73e8; border-radius: 14px; outline: none; width: 160px; }
   `);
 
   const ICON_BOLT = '<svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>';
@@ -103,6 +129,16 @@
     return parts;
   }
 
+  function describeTemplate(tpl) {
+    const parts = [tpl.title];
+    if (tpl.allDay) parts.push('all day');
+    else if (tpl.startHour != null) parts.push(`${String(tpl.startHour).padStart(2, '0')}:${String(tpl.startMinute || 0).padStart(2, '0')}, ${tpl.minutes} min`);
+    if (tpl.location) parts.push(tpl.location);
+    if (tpl.guests && tpl.guests.length) parts.push(`${tpl.guests.length} guests`);
+    if (tpl.rrule) parts.push(tpl.rrule);
+    return parts.join(' · ');
+  }
+
   function closePanel() {
     if (panel) panel.remove();
     panel = null;
@@ -132,6 +168,81 @@
 
     const preview = el('div', 'bgc-qa-preview');
     panel.appendChild(preview);
+
+    const tplRow = el('div', 'bgc-qa-tpls');
+    panel.appendChild(tplRow);
+    let activeTemplate = null;
+    let naming = false;
+    function renderTemplates() {
+      tplRow.textContent = '';
+      tplRow.appendChild(el('label', null, 'Templates'));
+      for (const tpl of templates) {
+        const chip = el('button', 'bgc-qa-tpl' + (activeTemplate && activeTemplate.id === tpl.id ? ' bgc-on' : ''));
+        chip.type = 'button';
+        chip.title = describeTemplate(tpl);
+        chip.appendChild(el('span', null, tpl.name));
+        const x = el('span', 'bgc-qa-x', '\u00d7');
+        x.title = 'Delete template';
+        x.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (activeTemplate && activeTemplate.id === tpl.id) activeTemplate = null;
+          saveTemplates(templates.filter((t) => t.id !== tpl.id)).then(() => {
+            renderTemplates();
+            update();
+          });
+        });
+        chip.appendChild(x);
+        chip.addEventListener('click', () => {
+          activeTemplate = activeTemplate && activeTemplate.id === tpl.id ? null : tpl;
+          renderTemplates();
+          update();
+          input.focus();
+        });
+        tplRow.appendChild(chip);
+      }
+      if (naming) {
+        const name = el('input', 'bgc-qa-name');
+        name.placeholder = 'Template name, Enter to save';
+        name.value = (current && current.event.summary) || '';
+        name.addEventListener('keydown', (e) => {
+          e.stopPropagation();
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const base = activeTemplate ? current : current;
+            if (!base) return;
+            const tpl = templateFromResult(base, name.value.trim() || base.event.summary);
+            saveTemplates(templates.filter((t) => t.name !== tpl.name).concat([tpl])).then(() => {
+              naming = false;
+              activeTemplate = tpl;
+              renderTemplates();
+              update();
+              toast(`Template "${tpl.name}" saved. Click it, type a day, press Enter.`);
+            });
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            naming = false;
+            renderTemplates();
+            input.focus();
+          }
+        });
+        tplRow.appendChild(name);
+        setTimeout(() => name.focus(), 0);
+      } else {
+        const save = el('button', 'bgc-qa-tpl bgc-qa-save', '+ Save as template');
+        save.type = 'button';
+        save.title = 'Keep title, time, length, place, guests and repeat rule of what is typed as a reusable template';
+        save.addEventListener('click', () => {
+          if (!current) {
+            toast('Type the event first (e.g. "Shift 2 at 14:00 for 8 hours at Plant B"), then save it as a template.');
+            return;
+          }
+          naming = true;
+          renderTemplates();
+        });
+        tplRow.appendChild(save);
+      }
+    }
+    panel.__renderTemplates = renderTemplates;
 
     const row = el('div', 'bgc-qa-row');
     const durLabel = el('label', null, 'Default length');
@@ -199,13 +310,15 @@
     function update() {
       preview.textContent = '';
       current = null;
-      const text = input.value.trim();
+      let text = input.value.trim();
+      if (!text && activeTemplate) text = 'today';
       if (!text) {
         preview.appendChild(el('span', 'bgc-qa-muted', 'Type what, when and where. Enter opens Google\u2019s pre-filled form.'));
         return;
       }
-      const result = parseQuickAdd(text, { defaultMinutes: prefs.defaultMinutes, dateOrder: prefs.dateOrder });
+      let result = parseQuickAdd(text, { defaultMinutes: prefs.defaultMinutes, dateOrder: prefs.dateOrder });
       if (!result) return;
+      if (activeTemplate) result = applyTemplate(result, activeTemplate);
       if (rec.value !== 'auto') {
         const preset = RECURRENCE_PRESETS.find((p) => p.id === rec.value);
         result.event.rrule = preset ? preset.rrule(toDate(result.event.start)) : result.event.rrule;
@@ -238,6 +351,7 @@
 
     shadow.appendChild(panel);
     document.addEventListener('keydown', onPanelKey, true);
+    renderTemplates();
     update();
     input.focus();
     input.select();

@@ -174,6 +174,33 @@ async function main() {
   await page.waitForSelector(shadow('.bgc-qa-panel'), { state: 'detached' });
   console.log('Escape closes quick add');
 
+  // 10. Templates: save what is typed, reopen, click the chip, type a day.
+  await page.locator(shadow('.bgc-qa-fab')).click();
+  const tplInput = await page.waitForSelector(shadow('.bgc-qa-input'));
+  await tplInput.type('Shift 2 at 14:00 for 8 hours at Plant B');
+  await page.waitForSelector(shadow('.bgc-qa-preview:has-text("Plant B")'));
+  await page.locator(shadow('.bgc-qa-save')).click();
+  const nameInput = await page.waitForSelector(shadow('.bgc-qa-name'));
+  await nameInput.fill('Shift 2');
+  await nameInput.press('Enter');
+  await page.waitForSelector(shadow('.bgc-qa-tpl.bgc-on:has-text("Shift 2")'));
+  await page.keyboard.press('Escape');
+  await page.reload();
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.keyboard.press('q');
+  await page.waitForSelector(shadow('.bgc-qa-tpl:has-text("Shift 2")'));
+  await page.locator(shadow('.bgc-qa-tpl:has-text("Shift 2")')).click();
+  await page.locator(shadow('.bgc-qa-input')).fill('next friday');
+  await page.waitForSelector(shadow('.bgc-qa-preview:has-text("Plant B")'));
+  await page.screenshot({ path: path.join(OUT, '6-template.png') });
+  await page.keyboard.press('Enter');
+  await page.waitForURL(/\/eventedit\?/);
+  const tp = new URL(page.url()).searchParams;
+  assert.equal(tp.get('text'), 'Shift 2');
+  assert.equal(tp.get('location'), 'Plant B');
+  assert.match(tp.get('dates'), /^\d{8}T140000\/\d{8}T220000$/);
+  console.log('template survives reload and fills time, length and place');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }
