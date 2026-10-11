@@ -234,6 +234,18 @@ async function main() {
   console.log('pasted ics -> event list');
   await page.keyboard.press('Escape');
 
+  // 13. Grid features on the mock grid: shading layer, totals, dimming of the past chip, now bar.
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week');
+  await page.waitForSelector(shadow('.bgc-totals'));
+  assert.match(await page.locator(shadow('.bgc-totals h4')).textContent(), /2h in 2 events/);
+  await page.waitForSelector('#bgc-grid-theme-layer div');
+  assert.ok((await page.locator('#bgc-grid-theme-layer div').count()) >= 7, 'shading boxes painted');
+  await page.waitForFunction(() => document.querySelector('[data-eventid="ev1"]').getAttribute('data-bgc-dim') === '1');
+  assert.equal(await page.getAttribute('[data-eventid="ev2"]', 'data-bgc-dim'), null);
+  assert.match(await page.locator(shadow('.bgc-now')).textContent(), /Late review/);
+  await page.screenshot({ path: path.join(OUT, '8-grid.png') });
+  console.log('grid: shading, totals, dim past, now bar');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }

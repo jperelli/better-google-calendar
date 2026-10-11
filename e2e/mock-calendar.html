@@ -6,20 +6,59 @@
 <style>
   body { margin: 0; font-family: Roboto, Arial, sans-serif; background: #fff; color: #3c4043; }
   header { height: 64px; border-bottom: 1px solid #dadce0; display: flex; align-items: center; padding: 0 16px; gap: 16px; font-size: 22px; }
-  main { display: grid; grid-template-columns: repeat(7, 1fr); height: calc(100vh - 64px); }
-  main div { border-right: 1px solid #dadce0; padding: 8px; font-size: 12px; color: #70757a; }
+  main { display: grid; grid-template-columns: 56px repeat(7, 1fr); height: calc(100vh - 64px); overflow: auto; position: relative; }
+  .gutter div { height: 48px; font-size: 10px; color: #70757a; text-align: right; padding-right: 6px; }
+  .col { border-right: 1px solid #dadce0; position: relative; height: 1152px; }
+  .col .head { font-size: 12px; color: #70757a; padding: 4px 8px; }
+  .chip { position: absolute; left: 4px; right: 4px; border-radius: 4px; color: #fff; font-size: 12px; padding: 2px 6px; }
 </style>
 </head>
 <body>
 <header>Mock Google Calendar (e2e)</header>
-<main>
-  <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+<main role="main">
+  <div class="gutter" id="gutter"></div>
 </main>
 <script>
   // Google Calendar has its own drag handlers; make sure ours win over them.
   window.__googleHandlerFired = 0;
   document.addEventListener('drop', () => { window.__googleHandlerFired++; });
   document.addEventListener('dragover', (e) => { e.dataTransfer.dropEffect = 'none'; });
+
+  // A week of day columns with Google's data-datekey encoding, an hour gutter
+  // and two chips today (one already over, one later today).
+  const gutter = document.getElementById('gutter');
+  for (let h = 0; h < 24; h++) {
+    const d = document.createElement('div');
+    d.textContent = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`;
+    gutter.appendChild(d);
+  }
+  const today = new Date();
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+  const main = document.querySelector('main');
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    const col = document.createElement('div');
+    col.className = 'col';
+    col.setAttribute('role', 'gridcell');
+    col.setAttribute('data-datekey', String(((d.getFullYear() - 1970) << 9) + ((d.getMonth() + 1) << 5) + d.getDate()));
+    col.innerHTML = `<div class="head">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]} ${d.getDate()}</div>`;
+    if (d.toDateString() === today.toDateString()) {
+      const mk = (start, end, title, color, id) => {
+        const c = document.createElement('div');
+        c.className = 'chip';
+        c.setAttribute('data-eventid', id);
+        c.style.top = `${start * 48}px`;
+        c.style.height = `${(end - start) * 48 - 2}px`;
+        c.style.backgroundColor = color;
+        const fmt = (h) => (h % 24 === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`);
+        c.innerHTML = `<span aria-hidden="true">${title}</span><span style="position:absolute;left:-9999px">${fmt(start)} to ${fmt(end)}, ${title}, Work</span>`;
+        col.appendChild(c);
+      };
+      mk(1, 2, 'Early standup', 'rgb(3, 155, 229)', 'ev1');   // always in the past
+      mk(23, 24, 'Late review', 'rgb(213, 0, 0)', 'ev2');     // always in the future
+    }
+    main.appendChild(col);
+  }
 </script>
 </body>
 </html>
