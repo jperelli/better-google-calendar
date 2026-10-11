@@ -83,7 +83,8 @@
     for (const node of main.querySelectorAll('[data-eventid]')) {
       const rect = node.getBoundingClientRect();
       if (rect.width < 4 || rect.height < 4) continue;
-      const time = parseChipTime(spacedText(node));
+      const text = spacedText(node);
+      const time = parseChipTime(text);
       const titleEl = node.querySelector('[aria-hidden="true"]') || node;
       const title = (titleEl.textContent || '').trim();
       const style = getComputedStyle(node);

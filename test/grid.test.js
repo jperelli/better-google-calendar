@@ -58,7 +58,7 @@ test('freeSlots and formatSlots', () => {
 });
 
 test('parseChipTime: a title ending in a digit does not leak into the hour', () => {
-  const t = parseChipTime('Early standup 1 11am to 2pm, Work');
+  const t = g.parseChipTime('Early standup 1 11am to 2pm, Work');
   assert.deepEqual([t.startMin, t.endMin], [11 * 60, 14 * 60]);
-  assert.equal(parseChipTime('Early standup 111am to 2pm'), null);
+  assert.equal(g.parseChipTime('Early standup 111am to 2pm'), null);
 });
