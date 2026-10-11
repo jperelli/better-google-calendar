@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Better Google Calendar",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Quick-add events in plain words, templates, free-times text, hour totals, shading, dimming, .ics drop/paste. No account access.",
   "homepage_url": "https://github.com/jperelli/better-google-calendar",
   "icons": {

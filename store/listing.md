@@ -2,7 +2,7 @@
 
 Dev console: https://chrome.google.com/webstore/devconsole
 Package: `npm run zip` -> `dist/better-google-calendar.zip`
-Screenshots (1280x800, real calendar, v0.2.0): `store/screenshots/1-quick-add.png`, `2-popover-ics.png`,
+Screenshots (1280x800, real calendar, v1.0.0): `store/screenshots/1-quick-add.png`, `2-popover-ics.png`,
 `3-grid-now-bar.png`, `4-palette.png`, `5-free-times.png`
 Small promo tile (440x280): `store/screenshots/promo-tile-440x280.png`
 Store icon (128x128): `icons/icon128.png`
