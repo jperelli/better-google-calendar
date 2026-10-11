@@ -133,7 +133,22 @@
     return `${lines.join('\n')}\n(${tz})`;
   }
 
-  const api = { freeSlots, fmtClock, formatSlots, dateFromDatekey, datekeyFromDate, parseHourLabel, parseChipTime, dayKind, totals, fmtMinutes };
+  // "GMT-04", "GMT+05:30", "UTC+1" (the label Google prints above the hour gutter) -> offset in minutes, else null.
+  function parseTzOffset(text) {
+    const m = String(text || '').trim().match(/^(?:GMT|UTC)\s?([+-])(\d{1,2})(?::?(\d{2}))?$/i);
+    if (!m) return null;
+    const sign = m[1] === '-' ? -1 : 1;
+    return sign * (+m[2] * 60 + (+m[3] || 0));
+  }
+
+  // A Date whose local getters (getHours, getDate, ...) read as wall-clock time at the given UTC offset.
+  function shiftedNow(offsetMin, nowMs) {
+    const now = new Date(nowMs == null ? Date.now() : nowMs);
+    if (offsetMin == null) return now;
+    return new Date(now.getTime() + (offsetMin + now.getTimezoneOffset()) * 60000);
+  }
+
+  const api = { freeSlots, fmtClock, formatSlots, dateFromDatekey, datekeyFromDate, parseHourLabel, parseChipTime, parseTzOffset, shiftedNow, dayKind, totals, fmtMinutes };
   root.BGC = root.BGC || {};
   root.BGC.grid = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

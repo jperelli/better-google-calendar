@@ -39,7 +39,7 @@
     clear();
     if (!prefs.enabled || !model.ok) return;
     const root = ensureLayer();
-    const today = new Date();
+    const today = BGC.liveGrid.now();
     const mainRect = model.main.getBoundingClientRect();
     for (const col of model.columns) {
       const kind = dayKind(col.date, today, prefs.holidays);

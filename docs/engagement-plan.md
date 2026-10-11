@@ -25,8 +25,8 @@ now solve. Every reply follows the same rules so it reads as help, not spam.
 
 - Publish the new version on the Chrome Web Store (store/listing.md is updated; screenshots need a
   refresh: Quick Add box, palette, grid shading, free-times dialog).
-- Verify the grid features on a real logged-in calendar.google.com once (see "Open risk" below);
-  do not post about shading/totals/Now bar until that is done.
+- Grid features verified on a real signed-in calendar.google.com (week view, 2026-10-11); threads 7–9
+  can be answered.
 - Create a short GitHub issue template for "layout changed" reports.
 
 ## Threads to answer (in order)
@@ -60,8 +60,8 @@ now solve. Every reply follows the same rules so it reads as help, not spam.
 
 ## Open risk
 
-The grid features (shading, totals, Now bar, dimming, free times, popover export) were built against
-the DOM facts documented by other open-source extensions (`data-datekey`, `data-eventid`, `role=main`,
-hour labels) and tested on a mock page; they must be checked once on a real signed-in calendar before
-threads 7–9 are answered. If the layout differs, the features pause themselves and show a notice, so
-nothing breaks for users, but the posts would promise something that is off.
+The grid features (shading, totals, Now bar, dimming, free times, popover export) read Google's
+rendered DOM (`data-datekey`, `data-eventid`, `role=main`, hour labels). They were verified on a real
+signed-in calendar on 2026-10-11 (week view, en-US, GMT-04 calendar on a UTC machine), but Google can
+change the markup at any time. If the layout differs, the features pause themselves and show a notice,
+so nothing breaks for users; re-check after any Calendar redesign before posting about them.

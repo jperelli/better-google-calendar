@@ -62,3 +62,17 @@ test('parseChipTime: a title ending in a digit does not leak into the hour', () 
   assert.deepEqual([t.startMin, t.endMin], [11 * 60, 14 * 60]);
   assert.equal(g.parseChipTime('Early standup 111am to 2pm'), null);
 });
+
+test('parseTzOffset reads the gutter label; shiftedNow gives that wall clock', () => {
+  assert.equal(g.parseTzOffset('GMT-04'), -240);
+  assert.equal(g.parseTzOffset('GMT+05:30'), 330);
+  assert.equal(g.parseTzOffset('UTC+1'), 60);
+  assert.equal(g.parseTzOffset('11'), null);
+  assert.equal(g.parseTzOffset('GMT'), null);
+  const t = Date.UTC(2026, 9, 11, 18, 31);
+  const d = g.shiftedNow(-240, t);
+  assert.deepEqual([d.getDate(), d.getHours(), d.getMinutes()], [11, 14, 31]);
+  const e = g.shiftedNow(330, t);
+  assert.deepEqual([e.getDate(), e.getHours(), e.getMinutes()], [12, 0, 1]);
+  assert.equal(g.shiftedNow(null, t).getTime(), t);
+});

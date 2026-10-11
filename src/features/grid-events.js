@@ -39,7 +39,7 @@
     }
     dimmed.clear();
     if (!model || !model.ok) return;
-    const now = new Date();
+    const now = BGC.liveGrid.now();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     for (const c of model.chips) {
@@ -106,14 +106,14 @@
     const a = chip.node.querySelector('a[href*="meet.google.com"], a[href*="zoom.us"], a[href*="teams.microsoft.com"]');
     if (a) return a.href;
     const m = (chip.text || '').match(/https?:\/\/(?:meet\.google\.com|[\w.]*zoom\.us|teams\.microsoft\.com)\/\S+/);
-    return m ? m[0] : null;
+    return m ? m[0].replace(/[,.;:)]+$/, '') : null;
   }
   function renderNow() {
     if (!prefs.showNowBar || nowHidden || !model || !model.ok) {
       if (nowBar) nowBar.remove();
       return;
     }
-    const now = new Date();
+    const now = BGC.liveGrid.now();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const todayChips = model.chips.filter((c) => c.time && c.date && c.date.toDateString() === now.toDateString() && !c.declined);
     const current = todayChips.find((c) => c.time.startMin <= nowMin && c.time.endMin > nowMin);

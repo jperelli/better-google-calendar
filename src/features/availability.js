@@ -12,17 +12,17 @@
     const model = BGC.liveGrid.get();
     if (!model.ok) return null;
     const theme = BGC.features && BGC.features.gridTheme ? BGC.features.gridTheme.get() : { workStart: 9, workEnd: 18, workDays: [1, 2, 3, 4, 5] };
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = BGC.liveGrid.now();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const days = model.columns.filter((c) => !c.header && c.date >= today && theme.workDays.includes(c.date.getDay())).map((c) => c.date);
     const uniq = [];
     for (const d of days) if (!uniq.some((u) => u.toDateString() === d.toDateString())) uniq.push(d);
     uniq.sort((a, b) => a - b);
-    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
     const busy = model.chips
       .filter((c) => c.time && c.date && !c.declined)
       .map((c) => ({ date: c.date, startMin: c.time.startMin, endMin: c.time.endMin }));
-    for (const d of uniq) if (d.toDateString() === new Date().toDateString()) busy.push({ date: d, startMin: 0, endMin: Math.ceil(nowMin / 30) * 30 });
+    for (const d of uniq) if (d.toDateString() === today.toDateString()) busy.push({ date: d, startMin: 0, endMin: Math.ceil(nowMin / 30) * 30 });
     for (const d of uniq) for (const c of model.chips) if (c.allDay && c.date && c.date.toDateString() === d.toDateString() && /out of office|ooo|vacation|holiday|vacaciones/i.test(c.title)) busy.push({ date: d, startMin: 0, endMin: 1440 });
     return { days: freeSlots(uniq, busy, { startMin: theme.workStart * 60, endMin: theme.workEnd * 60, minMinutes: 30 }), theme };
   }

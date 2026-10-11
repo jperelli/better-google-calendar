@@ -7,10 +7,26 @@
   'use strict';
   const BGC = window.BGC;
   if (!BGC || !BGC.ui || !BGC.grid) return;
-  const { dateFromDatekey, parseHourLabel, parseChipTime } = BGC.grid;
+  const { dateFromDatekey, parseHourLabel, parseChipTime, parseTzOffset, shiftedNow } = BGC.grid;
 
   // textContent glues adjacent spans together ("Busy 1" + "9:30am" -> "Busy 19:30am");
   // join text nodes with spaces so the time range stays intact.
+  // Title = first text node of the visual (aria-hidden) part of the chip, which Google renders as
+  // title / time / location blocks; fall back to the accessible description "time, title, calendar, ...".
+  function chipTitle(node, text) {
+    const visual = node.querySelector('[aria-hidden="true"]');
+    if (visual) {
+      const walker = document.createTreeWalker(visual, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const t = walker.currentNode.nodeValue.trim();
+        if (t) return t;
+      }
+    }
+    const parts = (text || '').split(/,\s+/);
+    if (parts.length > 1 && (parseChipTime(parts[0]) || /all day|todo el d\u00eda/i.test(parts[0]))) return parts[1].trim();
+    return (text || '').trim();
+  }
+
   function spacedText(node) {
     const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
     const parts = [];
@@ -21,7 +37,7 @@
   const { el, addStyle, mount, shadow } = BGC.ui;
 
   const listeners = [];
-  let model = { ok: false, reason: 'not scanned', view: null, columns: [], chips: [], gutter: null, main: null };
+  let model = { ok: false, reason: 'not scanned', view: null, columns: [], chips: [], gutter: null, main: null, tzOffsetMin: null };
   let noticeShown = false;
 
   addStyle(`
@@ -54,28 +70,48 @@
       seen.add(k);
       columns.push({ node, date, rect, header: node.getAttribute('role') === 'columnheader' });
     }
-    // Hour gutter: >= 20 short labels that parse as hours, vertically stacked.
+    // Hour gutter: >= 20 short labels that parse as hours, vertically stacked in one column.
     let gutter = null;
-    const labels = [];
+    let tzOffsetMin = null;
+    const candidates = [];
     for (const node of main.querySelectorAll('div, span')) {
       if (node.children.length) continue;
       const t = node.textContent.trim();
-      if (!t || t.length > 8) continue;
+      if (!t || t.length > 9) continue;
+      if (tzOffsetMin == null) {
+        const tz = parseTzOffset(t);
+        if (tz != null) tzOffsetMin = tz;
+      }
       const h = parseHourLabel(t);
       if (h == null) continue;
       const r = node.getBoundingClientRect();
-      if (r.height < 5 || r.width > 120) continue;
-      labels.push({ hour: h, top: r.top, node });
+      if (r.height < 5 || r.width < 5 || r.width > 120) continue;
+      // Google keeps hidden copies of the gutter (for measuring); only the painted one has the real spacing.
+      const cs = getComputedStyle(node);
+      if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      if (node.parentElement && node.parentElement.getBoundingClientRect().height < 5) continue;
+      candidates.push({ hour: h, top: r.top, left: Math.round(r.left / 4), node });
     }
+    // Day numbers in the header also parse as hours; keep only the biggest same-x column of labels.
+    const byLeft = new Map();
+    for (const l of candidates) byLeft.set(l.left, (byLeft.get(l.left) || []).concat(l));
+    const labels = Array.from(byLeft.values()).sort((a, b) => b.length - a.length)[0] || [];
     if (labels.length >= 20) {
       labels.sort((a, b) => a.top - b.top);
       const byHour = labels.filter((l, i) => i === 0 || l.hour !== labels[i - 1].hour);
       const first = byHour[0];
       const last = byHour[byHour.length - 1];
       const spanHours = last.hour - first.hour || 23;
-      const pxPerHour = (last.top - first.top) / spanHours;
+      let pxPerHour = (last.top - first.top) / spanHours;
       if (pxPerHour > 10 && pxPerHour < 400) {
-        gutter = { labels: byHour, pxPerHour, topOfHour: (h) => first.top + (h - first.hour) * pxPerHour, zeroTop: first.top - first.hour * pxPerHour };
+        let zeroTop = first.top - first.hour * pxPerHour;
+        // Labels sit a few px off the hour line; a day column spanning 24 h gives the exact geometry.
+        const dayCol = columns.find((c) => !c.header && Math.abs(c.rect.height / 24 - pxPerHour) < pxPerHour * 0.1 && Math.abs(c.rect.top - zeroTop) < pxPerHour);
+        if (dayCol) {
+          zeroTop = dayCol.rect.top;
+          pxPerHour = dayCol.rect.height / 24;
+        }
+        gutter = { labels: byHour, pxPerHour, topOfHour: (h) => zeroTop + h * pxPerHour, zeroTop };
       }
     }
     // Event chips.
@@ -83,10 +119,12 @@
     for (const node of main.querySelectorAll('[data-eventid]')) {
       const rect = node.getBoundingClientRect();
       if (rect.width < 4 || rect.height < 4) continue;
-      const text = spacedText(node);
+      const text = spacedText(node).replace(/\s+/g, ' ').trim();
+      // Google nests an empty drag handle with the same data-eventid inside each chip.
+      if (!text || (node.parentElement && node.parentElement.closest('[data-eventid]'))) continue;
       const time = parseChipTime(text);
       const titleEl = node.querySelector('[aria-hidden="true"]') || node;
-      const title = (titleEl.textContent || '').trim();
+      const title = chipTitle(node, text);
       const style = getComputedStyle(node);
       let color = style.backgroundColor;
       if (!color || color === 'rgba(0, 0, 0, 0)' || color === 'transparent') {
@@ -104,14 +142,14 @@
     const timed = /^(week|day|customday|customweek)$/.test(view) || (view === 'week');
     if (!columns.length) return fail('no day columns found', view, main);
     if (timed && !gutter) return fail('no hour gutter found', view, main, columns, chips);
-    model = { ok: true, reason: null, view, columns, chips, gutter, main };
+    model = { ok: true, reason: null, view, columns, chips, gutter, main, tzOffsetMin };
     noticeShown = false;
     hideNotice();
     emit();
   }
 
   function fail(reason, view, main, columns, chips) {
-    model = { ok: false, reason, view, columns: columns || [], chips: chips || [], gutter: null, main: main || null };
+    model = { ok: false, reason, view, columns: columns || [], chips: chips || [], gutter: null, main: main || null, tzOffsetMin: model.tzOffsetMin };
     emit();
   }
 
@@ -177,6 +215,8 @@
 
   BGC.liveGrid = {
     get: () => model,
+    // "Now" as shown by the calendar (its time zone can differ from the computer's).
+    now: () => shiftedNow(model.tzOffsetMin),
     onChange: (cb) => {
       listeners.push(cb);
       if (model.view) cb(model);

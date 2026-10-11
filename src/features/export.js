@@ -107,11 +107,20 @@
       const next = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
       ev = { summary: title, start: comps(date, 0, 0, true), end: comps(next, 0, 0, true) };
     }
+    // Google labels each row with a visually hidden "Location:" / "Description:" line before its value.
+    const after = (re) => {
+      const i = lines.findIndex((l) => re.test(l));
+      return i >= 0 && i + 1 < lines.length ? lines[i + 1] : '';
+    };
     const loc = dialog.querySelector('a[href*="maps.google"], a[href*="google.com/maps"]');
-    ev.location = loc ? loc.textContent.trim() : '';
+    ev.location = loc ? loc.textContent.trim() : after(/^(location|ubicaci\u00f3n|lugar|ort|lieu):?$/i);
     const meet = dialog.querySelector('a[href*="meet.google.com"], a[href*="zoom.us"], a[href*="teams.microsoft.com"]');
-    ev.description = meet ? meet.href : '';
-    ev.attendees = Array.from(dialog.querySelectorAll('[data-hovercard-id], [data-email]')).map((n) => ({ email: n.getAttribute('data-hovercard-id') || n.getAttribute('data-email'), name: null })).filter((a) => a.email && a.email.includes('@'));
+    const desc = after(/^(description|descripci\u00f3n|beschreibung):?$/i);
+    ev.description = [desc, meet && !desc.includes(meet.href) && meet.href !== ev.location ? meet.href : ''].filter(Boolean).join('\n');
+    const seen = new Set();
+    ev.attendees = Array.from(dialog.querySelectorAll('[data-hovercard-id], [data-email]'))
+      .map((n) => ({ email: n.getAttribute('data-hovercard-id') || n.getAttribute('data-email'), name: null }))
+      .filter((a) => a.email && a.email.includes('@') && !seen.has(a.email) && seen.add(a.email));
     return ev;
   }
 
@@ -121,7 +130,7 @@
     const btn = el('button', 'bgc-export-btn', '\u2913 .ics');
     btn.type = 'button';
     btn.title = 'Better Google Calendar: download this event as an .ics file';
-    btn.style.cssText = 'position:absolute;left:12px;bottom:10px;z-index:5;border:1px solid #dadce0;background:#fff;color:#1a73e8;border-radius:14px;padding:3px 10px;font:12px Roboto,Arial,sans-serif;cursor:pointer;';
+    btn.style.cssText = 'position:absolute;left:16px;top:14px;z-index:5;border:1px solid #dadce0;background:#fff;color:#1a73e8;border-radius:14px;padding:3px 10px;font:12px Roboto,Arial,sans-serif;cursor:pointer;';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const ev = eventFromDialog(dialog);
