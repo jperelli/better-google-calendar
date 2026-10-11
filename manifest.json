@@ -37,6 +37,7 @@
         "src/content.js",
         "src/features/quick-add.js",
         "src/features/declutter.js",
+        "src/features/export.js",
         "src/features/palette.js",
         "src/features/grid-live.js",
         "src/features/grid-theme.js",

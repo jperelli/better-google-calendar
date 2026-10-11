@@ -47,6 +47,7 @@
         keywords: ['button', 'fab', 'hide', 'show', 'quick add', 'botón'],
         run: () => settings.set('quickadd', { showFab: qaPrefs.showFab === false }).then(() => toast('Quick add button toggled.')),
       },
+      ...(BGC.features && BGC.features.export ? BGC.features.export.commands() : []),
       ...declutterCommands(),
       ...gridCommands(),
       {

@@ -246,6 +246,13 @@ async function main() {
   await page.screenshot({ path: path.join(OUT, '8-grid.png') });
   console.log('grid: shading, totals, dim past, now bar');
 
+  // 14. Export commands see the visible chips.
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('download ics');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Download visible events as .ics (2)")'));
+  await page.keyboard.press('Escape');
+  console.log('export commands count visible events');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }
