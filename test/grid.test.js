@@ -75,4 +75,7 @@ test('parseTzOffset reads the gutter label; shiftedNow gives that wall clock', (
   const e = g.shiftedNow(330, t);
   assert.deepEqual([e.getDate(), e.getHours(), e.getMinutes()], [12, 0, 1]);
   assert.equal(g.shiftedNow(null, t).getTime(), t);
+  assert.equal(g.fmtTzOffset(-240), 'GMT-04');
+  assert.equal(g.fmtTzOffset(330), 'GMT+05:30');
+  assert.equal(g.fmtTzOffset(0), 'GMT+00');
 });

@@ -5,7 +5,7 @@
   'use strict';
   const BGC = window.BGC;
   if (!BGC || !BGC.liveGrid || !BGC.grid || !BGC.ui) return;
-  const { freeSlots, formatSlots } = BGC.grid;
+  const { freeSlots, formatSlots, fmtTzOffset } = BGC.grid;
   const { el, toast, openDialog } = BGC.ui;
 
   function compute() {
@@ -40,7 +40,9 @@
     const refresh = () => {
       const again = compute();
       const days = again ? again.days.map((d) => ({ date: d.date, slots: d.slots.filter(([a, b]) => b - a >= minMinutes) })) : [];
-      ta.value = formatSlots(days, { h12 }) || 'No free gaps in the visible days inside your working hours.';
+      const off = BGC.liveGrid.get().tzOffsetMin;
+      const timeZone = off != null && off !== -new Date().getTimezoneOffset() ? fmtTzOffset(off) : undefined;
+      ta.value = formatSlots(days, { h12, timeZone }) || 'No free gaps in the visible days inside your working hours.';
     };
     refresh();
     body.appendChild(ta);

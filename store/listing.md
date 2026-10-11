@@ -2,7 +2,8 @@
 
 Dev console: https://chrome.google.com/webstore/devconsole
 Package: `npm run zip` -> `dist/better-google-calendar.zip`
-Screenshots (1280x800): `store/screenshots/1-event-list.png`, `store/screenshots/2-drop-overlay.png`
+Screenshots (1280x800, real calendar, v0.2.0): `store/screenshots/1-quick-add.png`, `2-popover-ics.png`,
+`3-grid-now-bar.png`, `4-palette.png`, `5-free-times.png`
 Small promo tile (440x280): `store/screenshots/promo-tile-440x280.png`
 Store icon (128x128): `icons/icon128.png`
 Privacy policy URL: https://github.com/jperelli/better-google-calendar/blob/main/PRIVACY.md
@@ -44,17 +45,26 @@ Privacy: no server, no analytics, no Google account access. Features that read y
 at what is already drawn on your screen, inside your browser.
 
 Better Google Calendar is open source: https://github.com/jperelli/better-google-calendar
-More Google Calendar improvements are planned; this is the first one.
+Missing something? Open an issue there.
 
 ## Single purpose description
 
-Add events from dropped .ics files to Google Calendar by opening Google Calendar's pre-filled
-"new event" form.
+Improve the Google Calendar web app: add events faster (plain-words quick add, templates, dropped or
+pasted .ics files) by opening Google Calendar's own pre-filled "new event" form, and add view helpers
+(working-hours shading, dimming, hour totals, now bar, free-times text, export, declutter) on top of the
+calendar page.
 
 ## Permission justifications
 
-Host permission `https://calendar.google.com/*`: the content script must run on Google Calendar to
-receive the dropped .ics file and display the list of events found in it. No calendar data is read.
+Host permission `https://calendar.google.com/*`: the content script must run on Google Calendar to show
+the quick-add box, receive dropped .ics files, shade the grid and read the events already drawn on the
+page for totals, now bar, free times and export. Nothing leaves the browser.
+
+`storage`: saves the user's settings (which features are on, working hours) and their event templates in
+chrome.storage.sync.
+
+`contextMenus`: adds the "Add … to Google Calendar" item for selected text on any page; the selected
+text is only used to build the Google Calendar "new event" URL.
 
 Remote code: No, this extension does not use remote code.
 

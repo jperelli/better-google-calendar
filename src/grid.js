@@ -141,6 +141,14 @@
     return sign * (+m[2] * 60 + (+m[3] || 0));
   }
 
+  // -240 -> "GMT-04", 330 -> "GMT+05:30"
+  function fmtTzOffset(min) {
+    const sign = min < 0 ? '-' : '+';
+    const a = Math.abs(min);
+    const hh = String(Math.floor(a / 60)).padStart(2, '0');
+    return `GMT${sign}${hh}${a % 60 ? ':' + String(a % 60).padStart(2, '0') : ''}`;
+  }
+
   // A Date whose local getters (getHours, getDate, ...) read as wall-clock time at the given UTC offset.
   function shiftedNow(offsetMin, nowMs) {
     const now = new Date(nowMs == null ? Date.now() : nowMs);
@@ -148,7 +156,7 @@
     return new Date(now.getTime() + (offsetMin + now.getTimezoneOffset()) * 60000);
   }
 
-  const api = { freeSlots, fmtClock, formatSlots, dateFromDatekey, datekeyFromDate, parseHourLabel, parseChipTime, parseTzOffset, shiftedNow, dayKind, totals, fmtMinutes };
+  const api = { freeSlots, fmtClock, formatSlots, dateFromDatekey, datekeyFromDate, parseHourLabel, parseChipTime, parseTzOffset, fmtTzOffset, shiftedNow, dayKind, totals, fmtMinutes };
   root.BGC = root.BGC || {};
   root.BGC.grid = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
