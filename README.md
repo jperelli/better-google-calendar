@@ -31,6 +31,14 @@ understood; **Enter** opens Google's pre-filled form (Shift+Enter in a new tab).
 
 Select text on any web page, right-click, **Add "…" to Google Calendar**: the same parser fills the form.
 
+## Command palette and settings finder
+
+**Ctrl+K** (Cmd+K on Mac, or Alt+Shift+P) opens a palette. Type plain words to find Google's buried
+settings: `declined`, `invitations`, `meet`, `week starts`, `time zone`, `agenda email`, `trash`,
+`import`; the matching Google settings page opens and a toast tells you which section to look in.
+Also: views (`month`, `agenda`, `4 days`), `today` / `next` / `previous`, `search budget`, and any date
+in plain words (`14 nov`, `next friday`, `en 3 días`) to jump there in the current view.
+
 ## Event templates
 
 In the Quick Add box, type an event once (`Shift 2 at 14:00 for 8 hours at Plant B`) and press

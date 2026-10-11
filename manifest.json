@@ -30,9 +30,11 @@
         "src/gcal-url.js",
         "src/quickadd.js",
         "src/templates.js",
+        "src/palette.js",
         "src/settings.js",
         "src/content.js",
-        "src/features/quick-add.js"
+        "src/features/quick-add.js",
+        "src/features/palette.js"
       ],
       "run_at": "document_idle"
     }

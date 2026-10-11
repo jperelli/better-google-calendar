@@ -201,6 +201,26 @@ async function main() {
   assert.match(tp.get('dates'), /^\d{8}T140000\/\d{8}T220000$/);
   console.log('template survives reload and fills time, length and place');
 
+  // 11. Command palette: Ctrl+K, filter a setting, Enter navigates to Google's settings page.
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week');
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.keyboard.press('Control+k');
+  const palInput = await page.waitForSelector(shadow('.bgc-pal-input'));
+  await palInput.type('declined');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Show declined events")'));
+  await page.screenshot({ path: path.join(OUT, '7-palette.png') });
+  await page.keyboard.press('Enter');
+  await page.waitForURL(/\/r\/settings$/);
+  console.log('palette -> settings page');
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week');
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('go to 14 nov');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Go to")'));
+  await page.keyboard.press('Enter');
+  await page.waitForURL(/\/r\/week\/\d{4}\/11\/14$/);
+  console.log('palette -> typed date');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }
