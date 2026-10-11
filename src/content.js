@@ -237,18 +237,32 @@
       toast(files.length ? 'Only .ics calendar files can be dropped here.' : 'Drop a .ics file to add its events.');
       return;
     }
-    const items = [];
+    const sources = [];
     for (const file of icsFiles) {
       try {
-        const parsed = parseICS(await readFile(file));
-        for (const event of parsed.events) items.push({ event, ctx: parsed, file: file.name });
+        sources.push({ name: file.name, text: await readFile(file) });
       } catch (err) {
         console.error('[Better Google Calendar] failed to read', file.name, err);
         toast(`Could not read ${file.name}.`);
       }
     }
+    importIcsSources(sources, 'the dropped file');
+  }
+
+  // sources: [{ name, text }] of iCalendar text (dropped files, pasted text, ...)
+  function importIcsSources(sources, what) {
+    const items = [];
+    for (const src of sources) {
+      try {
+        const parsed = parseICS(src.text);
+        for (const event of parsed.events) items.push({ event, ctx: parsed, file: src.name });
+      } catch (err) {
+        console.error('[Better Google Calendar] failed to parse', src.name, err);
+        toast(`Could not read ${src.name}.`);
+      }
+    }
     if (!items.length) {
-      toast('No events were found in the dropped file.');
+      toast(`No events were found in ${what || 'the file'}.`);
       return;
     }
     const base = eventEditBase(location.href);
@@ -259,8 +273,25 @@
       location.assign(items[0].url);
       return;
     }
-    showEventList(items, icsFiles.map((f) => f.name));
+    showEventList(items, sources.map((s) => s.name));
   }
+
+  // Pasting iCalendar text (an .ics opened in a text editor, a webcal feed
+  // body, an "Add to calendar" snippet) anywhere on the page imports it too.
+  document.addEventListener(
+    'paste',
+    (e) => {
+      if (isEditable(e.target)) return;
+      const path = e.composedPath ? e.composedPath() : [];
+      if (path.some((n) => n === host)) return;
+      const text = e.clipboardData && e.clipboardData.getData('text/plain');
+      if (!text || !/BEGIN:VCALENDAR/i.test(text)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      importIcsSources([{ name: 'pasted text', text }], 'the pasted text');
+    },
+    true
+  );
 
   // ---- event list modal ---------------------------------------------------
 
@@ -466,6 +497,7 @@
     closeDialog,
     addStyle,
     isEditable,
+    importIcsSources,
     icons: { calendarPlus: ICON_CALENDAR_PLUS, close: ICON_CLOSE },
   };
 })();

@@ -28,6 +28,7 @@
       "js": [
         "src/ics.js",
         "src/gcal-url.js",
+        "src/ics-write.js",
         "src/quickadd.js",
         "src/templates.js",
         "src/palette.js",

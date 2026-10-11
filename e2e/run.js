@@ -221,6 +221,19 @@ async function main() {
   await page.waitForURL(/\/r\/week\/\d{4}\/11\/14$/);
   console.log('palette -> typed date');
 
+  // 12. Pasting iCalendar text imports it like a dropped file.
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week');
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.evaluate((text) => {
+    const dt = new DataTransfer();
+    dt.setData('text/plain', text);
+    document.body.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dt }));
+  }, fixture('multi.ics'));
+  await page.waitForSelector(shadow('.bgc-dialog'));
+  assert.equal(await page.locator(shadow('.bgc-row')).count(), 5);
+  console.log('pasted ics -> event list');
+  await page.keyboard.press('Escape');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }

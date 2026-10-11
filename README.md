@@ -13,6 +13,8 @@ everything is done in the page or through Google's own URLs. Features (see
 
 The pre-filled form is Google's own `calendar/r/eventedit?text=…&dates=…` page (the same endpoint
 "Add to Google Calendar" links use), so nothing depends on Google Calendar's internal DOM.
+Pasting iCalendar text (Ctrl+V anywhere on the calendar, e.g. an `.ics` opened in a text editor or
+a `BEGIN:VCALENDAR` snippet from an e-mail) does the same as dropping a file.
 
 ## Quick Add in plain words
 
