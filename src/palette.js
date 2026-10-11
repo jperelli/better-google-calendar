@@ -140,16 +140,22 @@
     return total;
   }
 
+  // On equal scores Google's own pages win over the extension's toggles, so
+  // typing "declined" offers the setting first and the fade toggle second.
+  const GROUP_ORDER = ['Google settings', 'Go to', 'Views', 'Extension', 'Export'];
+  const GROUP_RANK = (g) => { const i = GROUP_ORDER.indexOf(g); return i < 0 ? GROUP_ORDER.length : i; };
+
   // Build the full list for the given page + query. `extra` are commands the
   // feature script adds (extension toggles, "go to <typed date>").
   function buildCommands(href, query, opts) {
     opts = opts || {};
     const ctx = parseCalendarUrl(href);
     let all = [].concat(opts.extra || [], navCommands(ctx, opts.now), viewCommands(ctx), settingsCommands(ctx));
+    const q = norm(query).trim();
     return all
       .map((c) => Object.assign({}, c, { score: score(c, query) }))
       .filter((c) => c.score > 0)
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => b.score - a.score || (q ? GROUP_RANK(a.group) - GROUP_RANK(b.group) : 0))
       .slice(0, opts.limit || 12);
   }
 

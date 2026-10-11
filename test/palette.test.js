@@ -46,3 +46,10 @@ test('extra commands rank with the rest', () => {
   const extra = [{ id: 'x', group: 'Extension', label: 'Hide the Quick add button', keywords: ['fab'] }];
   assert.equal(buildCommands(HREF, 'quick add', { extra })[0].id, 'x');
 });
+
+test('on equal scores a Google setting outranks an extension toggle', () => {
+  const extra = [{ id: 'ext:grid:declined', group: 'Extension', label: 'Turn off: fade declined events', keywords: ['declined', 'fade'], run() {} }];
+  const list = buildCommands('https://calendar.google.com/calendar/u/0/r/week', 'declined', { extra });
+  assert.equal(list[0].label, 'Show declined events');
+  assert.equal(list[1].id, 'ext:grid:declined');
+});

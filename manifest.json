@@ -37,12 +37,12 @@
         "src/content.js",
         "src/features/quick-add.js",
         "src/features/declutter.js",
-        "src/features/export.js",
-        "src/features/availability.js",
-        "src/features/palette.js",
         "src/features/grid-live.js",
         "src/features/grid-theme.js",
-        "src/features/grid-events.js"
+        "src/features/grid-events.js",
+        "src/features/export.js",
+        "src/features/availability.js",
+        "src/features/palette.js"
       ],
       "run_at": "document_idle"
     }
