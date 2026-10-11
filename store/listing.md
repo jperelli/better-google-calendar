@@ -16,24 +16,32 @@ Better Google Calendar
 
 ## Summary (max 132 chars)
 
-Drop .ics files onto Google Calendar and add their events through Google's own pre-filled "new event" form.
+Quick-add events in plain words, templates, free-times text, hour totals, shading, dimming, .ics drop/paste. No account access.
 
 ## Description
 
-Got an .ics invitation by email or downloaded a schedule from a website? Drop the file straight onto
-Google Calendar.
+Better Google Calendar adds the small things people keep asking Google for, without ever asking for
+access to your Google account: everything works inside the page or through Google's own URLs.
 
-• One event in the file: Google Calendar's own "new event" form opens with title, date and time,
-  description, location, guests and repeat rule already filled in. Check it and press Save.
-• Several events: a list shows every event in the file, sorted by date, with an "Open to add" button
-  for each one and an "Open all" button to open them all at once.
+• Quick add in plain words: press q and type "Lunch with ana@x.com tomorrow 1-2pm at Bar Lobo every
+  friday" (English and Spanish). Google's own "new event" form opens pre-filled. Repeat rules Google's
+  dialog cannot express (last day of month, last Friday, 2nd Tuesday, quarterly) are one click away.
+• Right-click any selected text on any page: "Add … to Google Calendar".
+• Event templates: save "Shift 2 at 14:00 for 8 hours at Plant B" once, then click the chip and type a day.
+• Drop or paste .ics files: one event opens the form, several show a list with "Open to add".
+• Command palette (Ctrl+K): find buried settings by plain words ("declined", "invitations", "meet",
+  "week starts"), jump to any date ("14 nov", "next friday"), switch views, search.
+• Working-hours shading, weekend/holiday/today colours, start the day at your first working hour.
+• Dim past events, fade declined ones.
+• Hours total per colour for the visible week (time tracking without a separate app).
+• Now bar: time left in the current meeting, countdown to the next one, one-click Join.
+• Share my free times: the free gaps of the visible week as copy-paste text, no booking link needed.
+• Export: copy the visible events as text/Markdown/CSV, download them as .ics, export one event from
+  its details popover.
+• Declutter and print: readable printing, compact density, hide illustrations, Meet buttons and promos.
 
-Works with files from Outlook, Apple Calendar, Eventbrite, Meetup, airlines, universities and any
-other iCalendar (.ics) source. Timezones (including Outlook's Windows timezone names), all-day
-events, durations and recurring events are handled.
-
-Privacy: the file is read locally in your browser and nothing is stored or sent anywhere. The
-extension only runs on calendar.google.com and only reacts when you drop a file.
+Privacy: no server, no analytics, no Google account access. Features that read your events only look
+at what is already drawn on your screen, inside your browser.
 
 Better Google Calendar is open source: https://github.com/jperelli/better-google-calendar
 More Google Calendar improvements are planned; this is the first one.

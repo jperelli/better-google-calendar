@@ -1,7 +1,7 @@
 # Better Google Calendar
 
 Chrome extension that improves Google Calendar without asking for access to your Google account:
-everything is done in the page or through Google's own URLs. Features (see
+everything is done in the page or through Google's own URLs (no OAuth, no server). Features (see
 [docs/market-research.md](docs/market-research.md) for why these):
 
 ## Drop an `.ics` file onto calendar.google.com to add its events
@@ -40,6 +40,30 @@ settings: `declined`, `invitations`, `meet`, `week starts`, `time zone`, `agenda
 `import`; the matching Google settings page opens and a toast tells you which section to look in.
 Also: views (`month`, `agenda`, `4 days`), `today` / `next` / `previous`, `search budget`, and any date
 in plain words (`14 nov`, `next friday`, `en 3 días`) to jump there in the current view.
+
+## Grid features (read from what is on screen, nothing leaves the browser)
+
+These read Google's week/day grid (day columns, hour gutter, event chips) through roles, data
+attributes and text, never class names. If Google changes the layout they switch themselves off and
+show a small "paused, tell us" notice instead of breaking the page. Toggle each one from the palette.
+
+- **Day colours and working-hours shading**: Saturdays, Sundays, holidays and today get a tint;
+  hours outside your working hours (default 9–18, Mon–Fri; palette: "Set working hours") are shaded.
+- **Start the day at your first working hour**: the grid scrolls past the night hours when a view opens.
+- **Dim past events** and **fade declined events** (opacity, nothing is hidden).
+- **Hours total per colour**: a small panel sums the timed events in view (what Time Insights does for
+  Workspace users) with a percentage per colour.
+- **Now bar**: current event with minutes left, next event with a countdown, and a **Join** link when
+  the event has a Meet/Zoom/Teams URL.
+- **Share my free times**: lists the free gaps of the visible week inside your working hours as
+  `Tue 25 Mar: 09:00–11:00, 14:00–16:00` text, ready to paste in an e-mail.
+- **Export**: copy the visible events as text, Markdown or CSV (timesheets), download them as `.ics`,
+  and an **⤓ .ics** button in Google's event details popover to export a single event.
+
+## Declutter, print and density
+
+Palette toggles: readable printing (titles wrap, dark text, no sidebars), compact density, hide event
+illustrations, hide "Join with Google Meet" buttons, hide upgrade promotions, higher-contrast text.
 
 ## Event templates
 

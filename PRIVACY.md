@@ -20,6 +20,13 @@ None. The extension has no server, no analytics and no tracking.
 - Nothing is stored by the extension: no file contents, no event data, no history, no identifiers.
 - Nothing is transmitted to the extension developer or to any third party.
 
+## What the extension reads on calendar.google.com
+
+Some features (day colours, dimming, totals, Now bar, free times, export) read the event chips that
+are already rendered on your screen: their title, time and colour. This happens inside your browser
+tab only; nothing is stored beyond the current page view and nothing is sent anywhere. Copy and
+download actions write to your clipboard or a local file only when you click them.
+
 ## Permissions
 
 - **Host access to `https://calendar.google.com/*`**: required to detect files dropped on Google
