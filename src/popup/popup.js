@@ -24,9 +24,10 @@
     const tab = await calendarTab();
     if (tab) {
       try {
+        // Send first: focusing the window closes this popup and would kill the script mid-way.
+        await chrome.tabs.sendMessage(tab.id, { type: `bgc:open-${what}` });
         await chrome.tabs.update(tab.id, { active: true });
         await chrome.windows.update(tab.windowId, { focused: true });
-        await chrome.tabs.sendMessage(tab.id, { type: `bgc:open-${what}` });
         return window.close();
       } catch (e) {
         // the content script is not running in that tab (e.g. just installed); fall through
