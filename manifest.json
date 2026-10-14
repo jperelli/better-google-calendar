@@ -34,6 +34,7 @@
         "src/templates.js",
         "src/palette.js",
         "src/grid.js",
+        "src/presets.js",
         "src/settings.js",
         "src/about.js",
         "src/content.js",
@@ -45,6 +46,7 @@
         "src/features/export.js",
         "src/features/availability.js",
         "src/features/settings-ui.js",
+        "src/features/presets.js",
         "src/features/palette.js"
       ],
       "run_at": "document_idle"

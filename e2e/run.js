@@ -321,6 +321,47 @@ async function main() {
   await page.keyboard.press('Escape');
   console.log('about modal shows version and links');
 
+  // 20. Calendar presets: the Presets button sits next to "My calendars"; save, apply, only-this, collapsed sidebar.
+  await page.waitForSelector('.bgc-presets-btn');
+  assert.equal(await page.evaluate(() => document.querySelector('.bgc-presets-btn').previousElementSibling.textContent.trim()), 'My calendars');
+  await page.locator('.bgc-presets-btn').click();
+  await page.waitForSelector(shadow('.bgc-dialog.bgc-presets'));
+  await page.locator(shadow('.bgc-pre-name-input')).fill('Focus');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector(shadow('.bgc-pre-row.bgc-active:has-text("Focus")'));
+  assert.match(await page.locator(shadow('.bgc-pre-row:has-text("Focus") .bgc-pre-cals')).textContent(), /Work, Personal, Holidays in Spain/);
+  await page.screenshot({ path: path.join(OUT, '14-presets.png') });
+  await page.locator(shadow('.bgc-pre-row:has-text("Team") .bgc-pre-only')).click();
+  const state = () => Array.from(document.querySelectorAll('aside input[type=checkbox]')).filter((c) => c.checked).map((c) => c.id.replace('cal-', '')).join(',');
+  await page.waitForFunction(`(${state})() === 'team'`);
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('preset: focus');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Preset: Focus")'));
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(`(${state})() === 'work,personal,holidays'`);
+  console.log('presets: save from sidebar button, only-this, apply from palette');
+  // collapsed sidebar: the preset is applied by opening the menu and closing it again
+  await page.locator('#menu').click();
+  await page.evaluate(() => { document.getElementById('cal-personal').checked = false; });
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('preset: focus');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Preset: Focus")'));
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(`(${state})() === 'work,personal,holidays'`);
+  await page.waitForFunction(() => document.getElementById('sidebar').hidden);
+  console.log('presets: applied with the sidebar collapsed, sidebar restored');
+  await page.locator('#menu').click();
+  // the preset survives a reload and shows in the settings modal
+  await page.reload();
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('every option');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector(shadow('.bgc-set-section[data-section="presets"] li:has-text("Focus (3)")'));
+  await page.keyboard.press('Escape');
+  console.log('presets: persisted, listed in settings');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }

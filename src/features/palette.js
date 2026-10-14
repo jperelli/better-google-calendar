@@ -58,6 +58,7 @@
       },
       ...(BGC.features && BGC.features.export ? BGC.features.export.commands() : []),
       ...declutterCommands(),
+      ...(BGC.features && BGC.features.presets ? BGC.features.presets.commands() : []),
       ...gridCommands(),
       {
         id: 'ext:settings',

@@ -52,6 +52,15 @@ in plain words (`14 nov`, `next friday`, `en 3 días`) to jump there in the curr
   Calendar with the hash) and **About** (version from the manifest, author, GitHub, and the post about the extension;
   `POST_URL` lives in `src/about.js`). About is also a modal in the page (palette: "About").
 
+## Calendar-selection presets
+
+- Save the calendars ticked in the left sidebar ("My calendars" + "Other calendars") under a name, then switch sets in
+  one click: the **Presets** button next to "My calendars", the command palette ("Preset: Focus", "Only this calendar:
+  Team", "Save the calendars ticked now as a preset") or the Settings modal (apply, update, rename, delete).
+- Works by clicking the sidebar checkboxes; if the sidebar or a group is collapsed it is expanded for a moment and put
+  back. Presets are stored in `chrome.storage.sync` per Google account (`/u/N/` in the URL), keyed by calendar name, so
+  they follow you across computers. If the sidebar cannot be found a toast says so instead of failing silently.
+
 ## Grid features (read from what is on screen, nothing leaves the browser)
 
 These read Google's week/day grid (day columns, hour gutter, event chips) through roles, data

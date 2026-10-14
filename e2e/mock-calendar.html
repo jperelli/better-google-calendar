@@ -6,7 +6,14 @@
 <style>
   body { margin: 0; font-family: Roboto, Arial, sans-serif; background: #fff; color: #3c4043; }
   header { height: 64px; border-bottom: 1px solid #dadce0; display: flex; align-items: center; padding: 0 16px; gap: 16px; font-size: 22px; }
-  main { display: grid; grid-template-columns: 56px repeat(7, 1fr); height: calc(100vh - 64px); overflow: auto; position: relative; }
+  .shell { display: flex; height: calc(100vh - 64px); }
+  aside { width: 256px; flex: none; border-right: 1px solid #dadce0; padding: 12px 8px; font-size: 14px; overflow: auto; }
+  aside[hidden] { display: none; }
+  aside .ghead { font-weight: 500; color: #3c4043; padding: 8px 8px 4px; }
+  aside ul { list-style: none; margin: 0; padding: 0; }
+  aside li { display: flex; align-items: center; gap: 8px; padding: 4px 8px; }
+  #menu { border: 0; background: transparent; font-size: 22px; cursor: pointer; }
+  main { display: grid; grid-template-columns: 56px repeat(7, 1fr); flex: 1; overflow: auto; position: relative; }
   .gutter div { height: 48px; font-size: 10px; color: #70757a; text-align: right; padding-right: 6px; }
   .col { border-right: 1px solid #dadce0; position: relative; height: 1152px; }
   .col .head { font-size: 12px; color: #70757a; padding: 4px 8px; }
@@ -14,15 +21,34 @@
 </style>
 </head>
 <body>
-<header>Mock Google Calendar (e2e)</header>
+<header><button id="menu" aria-label="Main menu">&#9776;</button>Mock Google Calendar (e2e)</header>
+<div class="shell">
+<aside role="complementary" id="sidebar">
+  <div class="group">
+    <div class="ghead" role="heading" aria-level="2">My calendars</div>
+    <ul role="list">
+      <li role="listitem"><input type="checkbox" id="cal-work" checked aria-label="Work"><label for="cal-work">Work</label></li>
+      <li role="listitem"><input type="checkbox" id="cal-personal" checked aria-label="Personal"><label for="cal-personal">Personal</label></li>
+    </ul>
+  </div>
+  <div class="group">
+    <div class="ghead" role="heading" aria-level="2">Other calendars</div>
+    <ul role="list">
+      <li role="listitem"><input type="checkbox" id="cal-holidays" checked aria-label="Holidays in Spain"><label for="cal-holidays">Holidays in Spain</label></li>
+      <li role="listitem"><input type="checkbox" id="cal-team" aria-label="Team"><label for="cal-team">Team</label></li>
+    </ul>
+  </div>
+</aside>
 <main role="main">
   <div class="gutter" id="gutter"></div>
 </main>
+</div>
 <script>
   // Google Calendar has its own drag handlers; make sure ours win over them.
   window.__googleHandlerFired = 0;
   document.addEventListener('drop', () => { window.__googleHandlerFired++; });
   document.addEventListener('dragover', (e) => { e.dataTransfer.dropEffect = 'none'; });
+  document.getElementById('menu').addEventListener('click', () => { const s = document.getElementById('sidebar'); s.hidden = !s.hidden; });
 
   // A week of day columns with Google's data-datekey encoding, an hour gutter
   // and two chips today (one already over, one later today).

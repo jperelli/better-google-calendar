@@ -41,6 +41,8 @@ access to your Google account: everything works inside the page or through Googl
   its details popover.
 • Declutter and print: readable printing, compact density, hide illustrations, Meet buttons and promos.
 • One Settings modal with every option in one place (Ctrl+K “Settings” or the extension icon), plus About.
+• Calendar presets: save which calendars are ticked in the sidebar and switch sets in one click (sidebar
+  button, palette “Preset: Work”, “Only this calendar”). Synced per account, no account access needed.
 
 Privacy: no server, no analytics, no Google account access. Features that read your events only look
 at what is already drawn on your screen, inside your browser.
