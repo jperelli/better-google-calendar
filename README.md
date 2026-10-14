@@ -65,8 +65,8 @@ in plain words (`14 nov`, `next friday`, `en 3 días`) to jump there in the curr
 
 - The same event on several visible calendars (same title and same start/end, in day, week, custom and month views)
   is drawn once: the other chips are hidden and the surviving one gets diagonal stripes with every calendar's colour
-  (`repeating-linear-gradient` built from the chips' background colours). Hover shows "On 3 calendars: Work, Team,
-  Personal"; clicking opens the surviving chip's details as usual. Hidden copies are left out of the hours totals and exports.
+  (`repeating-linear-gradient` built from the chips' background colours). Hover shows "3 events merged (Work, Team,
+  Personal)"; clicking opens the surviving chip's details as usual. Hidden copies are left out of the hours totals and exports.
 - A wildcard title (default `Busy`, e.g. the blocks another calendar copies over) merges by time only; empty it in
   Settings to merge identical titles only. Toggle in Settings or the palette ("merge duplicate events").
 - Re-applied on every grid change through the live grid observer; if the chips cannot be read the feature pauses with

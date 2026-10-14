@@ -56,8 +56,8 @@
       if (!model.ok && model.chips.length > 1) BGC.liveGrid.showNotice('Merge duplicate events');
       const groups = model.ok ? groupDuplicates(model.chips, { wildcard: prefs.wildcard }) : [];
       for (const g of groups) {
-        const names = g.chips.map((c) => calendarOf(c.text, c.title)).filter(Boolean);
-        const tip = names.length ? `On ${names.length} calendars: ${names.join(', ')}` : `Shown on ${g.chips.length} calendars`;
+        const names = Array.from(new Set(g.chips.map((c) => calendarOf(c.text, c.title)).filter(Boolean)));
+        const tip = names.length ? `${g.chips.length} events merged (${names.join(', ')})` : `${g.chips.length} events merged`;
         const survivor = g.survivor.node;
         const rec = remember(survivor);
         keep.add(survivor);

@@ -56,4 +56,5 @@ test('calendarOf reads the calendar name after the title in the accessible text'
   assert.equal(M.calendarOf('10am to 11am, Team sync, Work, Accepted', 'Team sync'), 'Work');
   assert.equal(M.calendarOf('10am to 11am, Team sync', 'Team sync'), '');
   assert.equal(M.calendarOf('All day, Offsite, Personal', 'offsite'), 'Personal');
+  assert.equal(M.calendarOf('10am to 11am, Team sync, Calendar: Team, No location', 'Team sync'), 'Team');
 });

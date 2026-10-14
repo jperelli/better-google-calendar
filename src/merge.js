@@ -84,7 +84,7 @@
     const parts = String(text || '').split(/,\s*/).map((p) => p.trim()).filter(Boolean);
     const t = normTitle(title);
     const i = parts.findIndex((p) => normTitle(p) === t);
-    if (i >= 0 && i + 1 < parts.length) return parts[i + 1];
+    if (i >= 0 && i + 1 < parts.length) return parts[i + 1].replace(/^(calendar|calendario|agenda)\s*:\s*/i, '');
     return '';
   }
 

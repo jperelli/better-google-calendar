@@ -370,7 +370,7 @@ async function main() {
   assert.equal(await page.getAttribute('[data-eventid="ev6"]', 'data-bgc-merged'), null);
   const bg = await page.evaluate(() => document.querySelector('[data-eventid="ev3"]').style.backgroundImage);
   assert.match(bg, /^repeating-linear-gradient\(135deg, rgb\(3, 155, 229\) 0px.*rgb\(51, 182, 121\) 8px.*rgb\(142, 36, 170\) 16px/);
-  assert.equal(await page.getAttribute('[data-eventid="ev3"]', 'title'), 'On 3 calendars: Work, Team, Personal');
+  assert.equal(await page.getAttribute('[data-eventid="ev3"]', 'title'), '3 events merged (Work, Team, Personal)');
   await page.locator('[data-eventid="ev3"]').click();
   assert.deepEqual(await page.evaluate(() => window.__chipClicks), ['ev3']);
   await page.screenshot({ path: path.join(OUT, '15-merged-chip.png'), clip: { x: 0, y: 60, width: 1280, height: 420 } });
