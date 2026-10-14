@@ -76,7 +76,7 @@
   }
 
   function menuButton() {
-    return document.querySelector('[aria-label="Main menu"], [aria-label="Menú principal"], [role="banner"] button[aria-label*="menu" i]');
+    return document.querySelector('[aria-label="Main drawer"], [aria-label="Main menu"], [aria-label="Menú principal"], [role="banner"] button[aria-label*="drawer" i], [role="banner"] button[aria-label*="menu" i]');
   }
 
   // Expand collapsed calendar groups ("My calendars" / "Other calendars" headers with aria-expanded=false).
@@ -311,7 +311,12 @@
 
   if (BGC.liveGrid) BGC.liveGrid.onChange(() => inject());
   else inject();
-  setTimeout(inject, 1500);
+  // The sidebar renders after the grid and does not trigger grid rescans: retry for a while.
+  let tries = 0;
+  const retry = setInterval(() => {
+    inject();
+    if ((button && button.isConnected) || ++tries > 30) clearInterval(retry);
+  }, 1000);
 
   // ---- palette and settings -----------------------------------------------------------
   function commands() {
