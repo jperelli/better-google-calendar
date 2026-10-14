@@ -24,6 +24,8 @@
     .bgc-totals { position: fixed; left: 16px; bottom: 24px; z-index: 2147483639; background: #fff; color: #3c4043; border-radius: 10px; padding: 10px 14px;
       font: 12px Roboto, Arial, sans-serif; box-shadow: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15); min-width: 180px; }
     .bgc-totals h4 { margin: 0 0 6px; font: 500 13px 'Google Sans', Roboto, Arial, sans-serif; color: #202124; display: flex; justify-content: space-between; gap: 8px; }
+    .bgc-totals h4 span:first-child { flex: 1; }
+    .bgc-totals .bgc-tot-gear { color: #5f6368; font-size: 14px; line-height: 1; }
     .bgc-totals .bgc-tot-row { display: flex; align-items: center; gap: 8px; line-height: 20px; }
     .bgc-totals .bgc-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
     .bgc-totals .bgc-tot-row span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; }
@@ -79,6 +81,11 @@
       renderTotals();
     });
     h.appendChild(toggle);
+    const gear = el('button', 'bgc-tot-gear', '\u2699');
+    gear.title = 'Better Google Calendar settings';
+    gear.setAttribute('aria-label', 'Better Google Calendar settings');
+    gear.addEventListener('click', () => BGC.features && BGC.features.settingsUi && BGC.features.settingsUi.open());
+    h.appendChild(gear);
     totalsBox.appendChild(h);
     if (!totalsCollapsed) {
       const rows = Object.entries(t.byKey).sort((a, b) => b[1] - a[1]);

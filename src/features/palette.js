@@ -23,6 +23,8 @@
     .bgc-pal-group { color: #70757a; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; align-self: center; }
     .bgc-pal-empty { padding: 16px 20px; color: #5f6368; }
     .bgc-pal-foot { padding: 8px 20px 10px; font-size: 12px; color: #70757a; border-top: 1px solid #f1f3f4; display: flex; gap: 14px; }
+    .bgc-pal-gear { margin-left: auto; border: 0; background: transparent; color: #1a73e8; cursor: pointer; font: 500 12px 'Google Sans', Roboto, Arial, sans-serif; padding: 0 4px; border-radius: 4px; }
+    .bgc-pal-gear:hover { background: rgba(26,115,232,.08); }
     .bgc-pal-foot kbd { font: 11px Roboto, Arial, sans-serif; border: 1px solid #dadce0; border-radius: 3px; padding: 0 4px; }
   `);
 
@@ -57,6 +59,20 @@
       ...(BGC.features && BGC.features.export ? BGC.features.export.commands() : []),
       ...declutterCommands(),
       ...gridCommands(),
+      {
+        id: 'ext:settings',
+        group: 'Extension',
+        label: 'Settings: every option of Better Google Calendar in one place',
+        keywords: ['settings', 'options', 'preferences', 'configure', 'ajustes', 'configuración', 'gear'],
+        run: () => BGC.features && BGC.features.settingsUi && BGC.features.settingsUi.open(),
+      },
+      {
+        id: 'ext:about',
+        group: 'Extension',
+        label: 'About Better Google Calendar (version, author, post)',
+        keywords: ['about', 'version', 'author', 'acerca de', 'info'],
+        run: () => BGC.features && BGC.features.settingsUi && BGC.features.settingsUi.openAbout(),
+      },
       {
         id: 'ext:research',
         group: 'Extension',
@@ -159,7 +175,15 @@
     input.placeholder = 'Type a setting (“declined”, “meet”, “week starts”), a view, or a date (“14 nov”)…';
     const list = el('ul', 'bgc-pal-list');
     const foot = el('div', 'bgc-pal-foot');
-    foot.innerHTML = '<span><kbd>↑</kbd><kbd>↓</kbd> choose</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span><span>Settings open Google\u2019s page; the toast tells you which section.</span>';
+    foot.innerHTML = '<span><kbd>↑</kbd><kbd>↓</kbd> choose</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span><span>Google settings open Google\u2019s page; the toast tells you which section.</span>';
+    const gear = el('button', 'bgc-pal-gear', '\u2699 Settings');
+    gear.type = 'button';
+    gear.title = 'Better Google Calendar settings';
+    gear.addEventListener('click', () => {
+      close();
+      if (BGC.features && BGC.features.settingsUi) BGC.features.settingsUi.open();
+    });
+    foot.appendChild(gear);
     pal.append(input, list, foot);
     backdrop.appendChild(pal);
     shadow.appendChild(backdrop);

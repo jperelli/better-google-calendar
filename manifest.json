@@ -15,7 +15,8 @@
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"
-    }
+    },
+    "default_popup": "src/popup/popup.html"
   },
   "background": {
     "service_worker": "src/background.js"
@@ -34,6 +35,7 @@
         "src/palette.js",
         "src/grid.js",
         "src/settings.js",
+        "src/about.js",
         "src/content.js",
         "src/features/quick-add.js",
         "src/features/declutter.js",
@@ -42,6 +44,7 @@
         "src/features/grid-events.js",
         "src/features/export.js",
         "src/features/availability.js",
+        "src/features/settings-ui.js",
         "src/features/palette.js"
       ],
       "run_at": "document_idle"
@@ -50,5 +53,8 @@
   "permissions": [
     "storage",
     "contextMenus"
+  ],
+  "host_permissions": [
+    "https://calendar.google.com/*"
   ]
 }

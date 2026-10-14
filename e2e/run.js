@@ -265,6 +265,62 @@ async function main() {
   await page.keyboard.press('Escape');
   console.log('share free times dialog');
 
+  // 16. Settings modal from the palette: every feature has a section, a toggle applies live.
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('every option');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Settings: every option")'));
+  await page.keyboard.press('Enter');
+  await page.waitForSelector(shadow('.bgc-dialog.bgc-settings'));
+  const sectionIds = await page.locator(shadow('.bgc-set-section')).evaluateAll((els) => els.map((e) => e.dataset.section));
+  for (const id of ['quickadd', 'templates', 'declutter', 'gridTheme', 'gridEvents', 'tools']) assert.ok(sectionIds.includes(id), `settings section ${id}`);
+  await page.locator(shadow('.bgc-set-row:has-text("Show the floating Quick add button") input')).click();
+  await page.waitForSelector(shadow('.bgc-qa-fab'), { state: 'detached' });
+  await page.locator(shadow('.bgc-set-row:has-text("Show the floating Quick add button") input')).click();
+  await page.waitForSelector(shadow('.bgc-qa-fab'));
+  await page.screenshot({ path: path.join(OUT, '10-settings.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForSelector(shadow('.bgc-dialog'), { state: 'detached' });
+  console.log('settings modal: sections present, toggle applies live, Esc closes');
+
+  // 17. #bgc-settings on the URL opens the modal and is removed from the URL; the totals gear opens it too.
+  await page.goto('https://calendar.google.com/calendar/u/0/r/week#bgc-settings');
+  await page.waitForSelector(shadow('.bgc-dialog.bgc-settings'));
+  assert.equal(new URL(page.url()).hash, '');
+  await page.keyboard.press('Escape');
+  await page.locator(shadow('.bgc-tot-gear')).click();
+  await page.waitForSelector(shadow('.bgc-dialog.bgc-settings'));
+  await page.keyboard.press('Escape');
+  console.log('settings via #bgc-settings hash and totals gear');
+
+  // 18. Toolbar popup: About shows the manifest version; Settings focuses the calendar tab and opens the modal there.
+  const extId = new URL(sw.url()).host;
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extId}/src/popup/popup.html`);
+  await popup.locator('#about').click();
+  assert.equal(await popup.locator('#version').textContent(), manifest.version);
+  assert.equal(await popup.locator('#author').getAttribute('href'), 'https://jperelli.com');
+  await popup.screenshot({ path: path.join(OUT, '11-popup-about.png') });
+  await popup.locator('#back').click();
+  await popup.screenshot({ path: path.join(OUT, '12-popup-menu.png') });
+  await popup.locator('#settings').click();
+  await page.waitForSelector(shadow('.bgc-dialog.bgc-settings'));
+  await page.waitForFunction(() => document.visibilityState === 'visible');
+  if (!popup.isClosed()) await popup.close();
+  await page.keyboard.press('Escape');
+  console.log('popup: About shows version, Settings opens the modal in the calendar tab');
+
+  // 19. About modal in the page.
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('about');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("About Better Google Calendar")'));
+  await page.keyboard.press('Enter');
+  await page.waitForSelector(shadow('.bgc-about'));
+  assert.match(await page.locator(shadow('.bgc-about-ver')).textContent(), new RegExp(manifest.version.replace(/\./g, '\\.')));
+  await page.screenshot({ path: path.join(OUT, '13-about.png') });
+  await page.keyboard.press('Escape');
+  console.log('about modal shows version and links');
+
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');
 }

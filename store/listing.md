@@ -40,6 +40,7 @@ access to your Google account: everything works inside the page or through Googl
 • Export: copy the visible events as text/Markdown/CSV, download them as .ics, export one event from
   its details popover.
 • Declutter and print: readable printing, compact density, hide illustrations, Meet buttons and promos.
+• One Settings modal with every option in one place (Ctrl+K “Settings” or the extension icon), plus About.
 
 Privacy: no server, no analytics, no Google account access. Features that read your events only look
 at what is already drawn on your screen, inside your browser.

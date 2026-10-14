@@ -41,6 +41,17 @@ settings: `declined`, `invitations`, `meet`, `week starts`, `time zone`, `agenda
 Also: views (`month`, `agenda`, `4 days`), `today` / `next` / `previous`, `search budget`, and any date
 in plain words (`14 nov`, `next friday`, `en 3 días`) to jump there in the current view.
 
+## Settings modal, toolbar menu and About
+
+- One **Settings** modal (shadow DOM, Esc closes) with every option of every feature, grouped by feature: quick add,
+  templates, look/declutter toggles, grid colours and working hours, dimming/totals/now bar, export and import notes,
+  calendar presets and duplicate merge. Changes apply immediately (same `chrome.storage.sync` store as the palette toggles).
+- Open it from the command palette (Ctrl+K, "Settings"), the gear in the palette footer or the hours-total box, the
+  extension icon menu, or by loading `https://calendar.google.com/calendar/r#bgc-settings`.
+- The extension icon opens a small menu: **Settings** (focuses an open Calendar tab and opens the modal there, or opens
+  Calendar with the hash) and **About** (version from the manifest, author, GitHub, and the post about the extension;
+  `POST_URL` lives in `src/about.js`). About is also a modal in the page (palette: "About").
+
 ## Grid features (read from what is on screen, nothing leaves the browser)
 
 These read Google's week/day grid (day columns, hour gutter, event chips) through roles, data
