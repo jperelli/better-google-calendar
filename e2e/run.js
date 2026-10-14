@@ -237,7 +237,7 @@ async function main() {
   // 13. Grid features on the mock grid: shading layer, totals, dimming of the past chip, now bar.
   await page.goto('https://calendar.google.com/calendar/u/0/r/week');
   await page.waitForSelector(shadow('.bgc-totals'));
-  assert.match(await page.locator(shadow('.bgc-totals h4')).textContent(), /2h in 2 events/);
+  await page.waitForSelector(shadow('.bgc-totals h4:has-text("4h in 4 events")')); // 6 chips, 2 hidden as duplicates
   await page.waitForSelector('#bgc-grid-theme-layer div');
   assert.ok((await page.locator('#bgc-grid-theme-layer div').count()) >= 7, 'shading boxes painted');
   await page.waitForFunction(() => document.querySelector('[data-eventid="ev1"]').getAttribute('data-bgc-dim') === '1');
@@ -249,7 +249,7 @@ async function main() {
   // 14. Export commands see the visible chips.
   await page.keyboard.press('Control+k');
   await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('download ics');
-  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Download visible events as .ics (2)")'));
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Download visible events as .ics (4)")'));
   await page.keyboard.press('Escape');
   console.log('export commands count visible events');
 
@@ -361,6 +361,48 @@ async function main() {
   await page.waitForSelector(shadow('.bgc-set-section[data-section="presets"] li:has-text("Focus (3)")'));
   await page.keyboard.press('Escape');
   console.log('presets: persisted, listed in settings');
+
+  // 21. Duplicate merge: Team sync x2 + Busy at the same time -> one striped chip, others hidden, click still works.
+  await page.waitForFunction(() => document.querySelector('[data-eventid="ev3"]').getAttribute('data-bgc-merged') === '3');
+  assert.equal(await page.getAttribute('[data-eventid="ev4"]', 'data-bgc-merged'), 'hidden');
+  assert.equal(await page.getAttribute('[data-eventid="ev5"]', 'data-bgc-merged'), 'hidden');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-eventid="ev4"]')).visibility), 'hidden');
+  assert.equal(await page.getAttribute('[data-eventid="ev6"]', 'data-bgc-merged'), null);
+  const bg = await page.evaluate(() => document.querySelector('[data-eventid="ev3"]').style.backgroundImage);
+  assert.match(bg, /^repeating-linear-gradient\(135deg, rgb\(3, 155, 229\) 0px.*rgb\(51, 182, 121\) 8px.*rgb\(142, 36, 170\) 16px/);
+  assert.equal(await page.getAttribute('[data-eventid="ev3"]', 'title'), 'On 3 calendars: Work, Team, Personal');
+  await page.locator('[data-eventid="ev3"]').click();
+  assert.deepEqual(await page.evaluate(() => window.__chipClicks), ['ev3']);
+  await page.screenshot({ path: path.join(OUT, '15-merged-chip.png'), clip: { x: 0, y: 60, width: 1280, height: 420 } });
+  console.log('merge: striped survivor, duplicates hidden, tooltip lists calendars, click works');
+  // palette toggle restores the chips; turning it back on merges again
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('merge duplicate');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Turn off: merge duplicate events")'));
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => !document.querySelector('[data-eventid="ev4"]').hasAttribute('data-bgc-merged') && getComputedStyle(document.querySelector('[data-eventid="ev4"]')).visibility === 'visible');
+  assert.equal(await page.evaluate(() => document.querySelector('[data-eventid="ev3"]').style.backgroundImage), '');
+  await page.waitForSelector(shadow('.bgc-totals h4:has-text("6h in 6 events")'));
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('merge duplicate');
+  await page.waitForSelector(shadow('.bgc-pal-item.bgc-on:has-text("Turn on: merge duplicate events")'));
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('[data-eventid="ev4"]').getAttribute('data-bgc-merged') === 'hidden');
+  console.log('merge: palette toggle off restores chips, on merges again');
+  // wildcard off in settings: Busy stays separate, the two Team syncs still merge
+  await page.keyboard.press('Control+k');
+  await (await page.waitForSelector(shadow('.bgc-pal-input'))).type('every option');
+  await page.keyboard.press('Enter');
+  const wild = page.locator(shadow('.bgc-set-section[data-section="merge"] input[type="text"]'));
+  await wild.fill('');
+  await wild.press('Enter');
+  await wild.dispatchEvent('change');
+  await page.waitForFunction(() => !document.querySelector('[data-eventid="ev5"]').hasAttribute('data-bgc-merged') && document.querySelector('[data-eventid="ev3"]').getAttribute('data-bgc-merged') === '2');
+  await wild.fill('Busy');
+  await wild.dispatchEvent('change');
+  await page.waitForFunction(() => document.querySelector('[data-eventid="ev5"]').getAttribute('data-bgc-merged') === 'hidden');
+  await page.keyboard.press('Escape');
+  console.log('merge: wildcard setting applies live');
 
   await context.close();
   console.log('\nALL E2E CHECKS PASSED');

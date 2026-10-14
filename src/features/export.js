@@ -19,7 +19,7 @@
     if (!model.ok) return [];
     const out = [];
     for (const c of model.chips) {
-      if (!c.date) continue;
+      if (!c.date || c.node.getAttribute('data-bgc-merged') === 'hidden') continue;
       let ev;
       if (c.time) {
         const s = c.time.startMin;

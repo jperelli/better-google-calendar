@@ -71,7 +71,7 @@
     mount();
     if (!totalsBox) totalsBox = el('div', 'bgc-totals');
     totalsBox.textContent = '';
-    const timed = model.chips.filter((c) => c.time && !c.declined);
+    const timed = model.chips.filter((c) => c.time && !c.declined && c.node.getAttribute('data-bgc-merged') !== 'hidden');
     const t = totals(timed.map((c) => ({ key: c.color || 'other', startMin: c.time.startMin, endMin: c.time.endMin })));
     const h = el('h4');
     h.appendChild(el('span', null, `${fmtMinutes(t.total)} in ${timed.length} events`));

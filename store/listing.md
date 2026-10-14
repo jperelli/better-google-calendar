@@ -43,6 +43,8 @@ access to your Google account: everything works inside the page or through Googl
 • One Settings modal with every option in one place (Ctrl+K “Settings” or the extension icon), plus About.
 • Calendar presets: save which calendars are ticked in the sidebar and switch sets in one click (sidebar
   button, palette “Preset: Work”, “Only this calendar”). Synced per account, no account access needed.
+• Merge duplicate events: the same meeting on several calendars becomes one chip striped with their colours
+  (hover to see which); a “Busy” wildcard merges by time only.
 
 Privacy: no server, no analytics, no Google account access. Features that read your events only look
 at what is already drawn on your screen, inside your browser.

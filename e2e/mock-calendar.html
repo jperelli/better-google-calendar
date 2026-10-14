@@ -17,7 +17,7 @@
   .gutter div { height: 48px; font-size: 10px; color: #70757a; text-align: right; padding-right: 6px; }
   .col { border-right: 1px solid #dadce0; position: relative; height: 1152px; }
   .col .head { font-size: 12px; color: #70757a; padding: 4px 8px; }
-  .chip { position: absolute; left: 4px; right: 4px; border-radius: 4px; color: #fff; font-size: 12px; padding: 2px 6px; }
+  .chip { position: absolute; left: 4px; right: 4px; border-radius: 4px; color: #fff; font-size: 12px; padding: 2px 6px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -47,6 +47,8 @@
   // Google Calendar has its own drag handlers; make sure ours win over them.
   window.__googleHandlerFired = 0;
   document.addEventListener('drop', () => { window.__googleHandlerFired++; });
+  window.__chipClicks = [];
+  document.addEventListener('click', (e) => { const c = e.target.closest('[data-eventid]'); if (c) window.__chipClicks.push(c.getAttribute('data-eventid')); });
   document.addEventListener('dragover', (e) => { e.dataTransfer.dropEffect = 'none'; });
   document.getElementById('menu').addEventListener('click', () => { const s = document.getElementById('sidebar'); s.hidden = !s.hidden; });
 
@@ -69,7 +71,7 @@
     col.setAttribute('data-datekey', String(((d.getFullYear() - 1970) << 9) + ((d.getMonth() + 1) << 5) + d.getDate()));
     col.innerHTML = `<div class="head">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]} ${d.getDate()}</div>`;
     if (d.toDateString() === today.toDateString()) {
-      const mk = (start, end, title, color, id) => {
+      const mk = (start, end, title, color, id, calendar) => {
         const c = document.createElement('div');
         c.className = 'chip';
         c.setAttribute('data-eventid', id);
@@ -77,11 +79,16 @@
         c.style.height = `${(end - start) * 48 - 2}px`;
         c.style.backgroundColor = color;
         const fmt = (h) => (h % 24 === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`);
-        c.innerHTML = `<span aria-hidden="true">${title}</span><span style="position:absolute;left:-9999px">${fmt(start)} to ${fmt(end)}, ${title}, Work</span>`;
+        c.innerHTML = `<span aria-hidden="true">${title}</span><span style="position:absolute;left:-9999px">${fmt(start)} to ${fmt(end)}, ${title}, ${calendar || 'Work'}</span>`;
         col.appendChild(c);
       };
       mk(1, 2, 'Early standup', 'rgb(3, 155, 229)', 'ev1');   // always in the past
       mk(23, 24, 'Late review', 'rgb(213, 0, 0)', 'ev2');     // always in the future
+      // The same meeting on three calendars (Work, Team, and a "Busy" copy) and a lone lunch.
+      mk(10, 11, 'Team sync', 'rgb(3, 155, 229)', 'ev3', 'Work');
+      mk(10, 11, 'Team sync', 'rgb(51, 182, 121)', 'ev4', 'Team');
+      mk(10, 11, 'Busy', 'rgb(142, 36, 170)', 'ev5', 'Personal');
+      mk(12, 13, 'Lunch', 'rgb(230, 124, 115)', 'ev6', 'Personal');
     }
     main.appendChild(col);
   }
